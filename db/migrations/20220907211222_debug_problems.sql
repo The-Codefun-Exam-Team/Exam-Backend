@@ -1,4 +1,4 @@
-BEGIN;
+-- +goose Up
 
 CREATE TABLE debug_problems (
 	dpid INT auto_increment NOT NULL,
@@ -19,4 +19,6 @@ CREATE TABLE debug_problems (
 	FOREIGN KEY(rid) REFERENCES runs(rid)
 );
 
-COMMIT;
+-- +goose Down
+
+DROP TABLE IF EXISTS debug_problems;
