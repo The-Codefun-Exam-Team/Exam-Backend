@@ -9,9 +9,13 @@ import (
 func main(){
 	e := echo.New()
 
-	// Config TLS
+	// e.AutoTLSManager.HostPolicy = autocert.HostWhitelist("exam.codefun.vn")
+	// e.AutoTLSManager.Cache = autocert.DirCache("/autocert/.cache")
+	// e.Use(middleware.Recover())
+	// e.Use(middleware.Logger())
 
 	e.GET("/ping", general.Ping)
 
 	e.Start(":1700")
+	// e.StartAutoTLS(":21700")
 }
