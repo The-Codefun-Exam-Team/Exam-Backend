@@ -7,5 +7,5 @@ import (
 )
 
 func Ping(c echo.Context) error {
-	return c.String(http.StatusOK, "pingmongus")
+	return c.String(http.StatusOK, "pingmongus\n")
 }
