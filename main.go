@@ -22,5 +22,5 @@ func main(){
 	e.GET("/ping", general.Ping)
 	e.GET("/debug_problem", general.TempDebug)
 
-	e.Start(":1700")
+	e.Start(":80")
 }
