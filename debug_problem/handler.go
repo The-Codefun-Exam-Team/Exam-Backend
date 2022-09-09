@@ -1,7 +1,6 @@
 package debugproblem
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -12,7 +11,12 @@ import (
 func (g *Group) ProblemGet(c echo.Context) error {
 	prob, err := models.ReadDebugProblemCode(g.db, c.Param("code"))
 	if err != nil {
-		return c.String(http.StatusOK, fmt.Sprintf("Error: %v", err))
+		return err
+	}
+
+	prob.Codetext, err = models.ReadSubsCode(g.db, prob.Rid)
+	if err != nil {
+		return err
 	}
 
 	return c.JSON(http.StatusOK, prob)
