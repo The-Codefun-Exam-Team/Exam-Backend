@@ -7,6 +7,7 @@ import (
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
 )
 
 func main(){
@@ -21,6 +22,10 @@ func main(){
 
 	e.GET("/ping", general.Ping)
 	e.GET("/debug_problem", general.TempDebug)
+
+	if _, err := debugproblem.New(db, e.Group("/problems")); err != nil {
+		log.Fatal(err)
+	}
 
 	e.Start(":80")
 }

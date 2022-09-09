@@ -36,6 +36,7 @@ func loadDBConfig() *string {
 		Net: "tcp",
 		Addr: fmt.Sprintf("%v:%v", os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
 		DBName: os.Getenv("DB_NAME"),
+		AllowNativePasswords: true,
 	}
 
 	dsn := cfg.FormatDSN()
