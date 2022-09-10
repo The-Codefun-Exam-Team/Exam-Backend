@@ -22,6 +22,7 @@ func main(){
 
 	e.GET("/ping", general.Ping)
 	e.GET("/debug_problem", general.TempDebug)
+	e.GET("/debug_submission/:id", general.TempSubmission)
 
 	if _, err := debugproblem.New(db, e.Group("/problems")); err != nil {
 		log.Fatal(err)

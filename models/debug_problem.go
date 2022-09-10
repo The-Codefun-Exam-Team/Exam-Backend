@@ -5,22 +5,28 @@ import (
 )
 
 type DebugProblem struct {
-	Dpid int `json:"-"`
-	Code string `json:"-"`
-	Name string `json:"-"`
-	Status string `json:"-"`
-	Solved int `json:"-"`
-	Total int `json:"-"`
-	Rid int `json:"-"`
-	Pid int `json:"pid"`
-	Language string `json:"language"`
-	Score float32 `json:"score"`
-	Result string `json:"result"`
-
-	Codetext string `json:"code"`
+	Dpid int
+	Code string
+	Name string
+	Status string
+	Solved int
+	Total int
+	Rid int
+	Pid int
+	Language string
+	Score float32
+	Result string
 }
 
-func ReadDebugProblemID(db *db.DB, dpid int) (DebugProblem, error) {
+type JSONDebugProblem struct {
+	Problem JSONProblem `json:"problem"`
+	Language string `json:"language"`
+	Result string `json:"result"`
+	Score float32 `json:"score"`
+	Code string `json:"code"`
+}
+
+func ReadDebugProblemWithID(db *db.DB, dpid int) (DebugProblem, error) {
 	var prob DebugProblem
 
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE dpid = ?", dpid)
@@ -33,7 +39,7 @@ func ReadDebugProblemID(db *db.DB, dpid int) (DebugProblem, error) {
 	return prob, nil
 }
 
-func ReadDebugProblemCode(db *db.DB, code string) (DebugProblem, error) {
+func ReadDebugProblemWithCode(db *db.DB, code string) (DebugProblem, error) {
 	var prob DebugProblem
 
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE code = ?", code)
@@ -73,4 +79,32 @@ func ReadSubsCode(db *db.DB, rid int) (string, error) {
 	}
 
 	return code, nil
+}
+
+func ReadJSONDebugProblemWithCode(db *db.DB, code string) (JSONDebugProblem, error) {
+	prob, err := ReadDebugProblemWithCode(db, code)
+	if err != nil {
+		var jdprob JSONDebugProblem
+		return jdprob, err
+	}
+
+	jprob, err := ReadJSONProblemWithID(db, prob.Pid)
+	if err != nil {
+		var jdprob JSONDebugProblem
+		return jdprob, err
+	}
+
+	codetext, err := ReadSubsCode(db, prob.Rid)
+	if err != nil {
+		var jdprob JSONDebugProblem
+		return jdprob, err
+	}
+
+	return JSONDebugProblem{
+		Problem: jprob,
+		Language: prob.Language,
+		Result: prob.Result,
+		Score: prob.Score,
+		Code: codetext,
+	}, nil
 }
