@@ -19,40 +19,40 @@ type DebugProblem struct {
 }
 
 type JSONDebugProblem struct {
-	Problem  JSONProblem `json:"problem"`
+	Problem  *JSONProblem `json:"problem"`
 	Language string      `json:"language"`
 	Result   string      `json:"result"`
 	Score    float32     `json:"score"`
 	Code     string      `json:"code"`
 }
 
-func ReadDebugProblemWithID(db *db.DB, dpid int) (DebugProblem, error) {
+func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {
 	var prob DebugProblem
 
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE dpid = ?", dpid)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
 		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
-		return prob, err
+		return &prob, err
 	}
 
-	return prob, nil
+	return &prob, nil
 }
 
-func ReadDebugProblemWithCode(db *db.DB, code string) (DebugProblem, error) {
+func ReadDebugProblemWithCode(db *db.DB, code string) (*DebugProblem, error) {
 	var prob DebugProblem
 
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE code = ?", code)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
 		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
-		return prob, err
+		return &prob, err
 	}
 
-	return prob, nil
+	return &prob, nil
 }
 
-func WriteDebugProblem(db *db.DB, prob DebugProblem) (int64, error) {
+func WriteDebugProblem(db *db.DB, prob *DebugProblem) (int64, error) {
 	res, err := db.Exec("INSERT INTO debug_problems (code, name, status, solved, total, rid, pid, language, score, result) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		prob.Code, prob.Name, prob.Status, prob.Total, prob.Rid, prob.Pid, prob.Language, prob.Score, prob.Result)
 
@@ -81,26 +81,26 @@ func ReadSubsCode(db *db.DB, rid int) (string, error) {
 	return code, nil
 }
 
-func ReadJSONDebugProblemWithCode(db *db.DB, code string) (JSONDebugProblem, error) {
+func ReadJSONDebugProblemWithCode(db *db.DB, code string) (*JSONDebugProblem, error) {
 	prob, err := ReadDebugProblemWithCode(db, code)
 	if err != nil {
 		var jdprob JSONDebugProblem
-		return jdprob, err
+		return &jdprob, err
 	}
 
 	jprob, err := ReadJSONProblemWithID(db, prob.Pid)
 	if err != nil {
 		var jdprob JSONDebugProblem
-		return jdprob, err
+		return &jdprob, err
 	}
 
 	codetext, err := ReadSubsCode(db, prob.Rid)
 	if err != nil {
 		var jdprob JSONDebugProblem
-		return jdprob, err
+		return &jdprob, err
 	}
 
-	return JSONDebugProblem{
+	return &JSONDebugProblem{
 		Problem:  jprob,
 		Language: prob.Language,
 		Result:   prob.Result,

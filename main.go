@@ -9,13 +9,14 @@ import (
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
 )
 
 func main() {
 	e := echo.New()
 
-	e.Pre(middleware.HTTPSRedirect())
-	e.Pre(middleware.RemoveTrailingSlash())
+	// e.Pre(middleware.HTTPSRedirect())
+	e.Pre(middleware.AddTrailingSlash())
 
 	db, err := db.New(nil)
 	if err != nil {
@@ -24,14 +25,18 @@ func main() {
 
 	db.Ping()
 
-	e.GET("/ping", general.Ping)
-	e.GET("/debug_problem", general.TempDebug)
-	e.GET("/debug_submission/:id", general.TempSubmission)
+	e.GET("/ping/", general.Ping)
+	e.GET("/debug_problem/", general.TempDebug)
+	e.GET("/debug_submission/:id/", general.TempSubmission)
 
-	if _, err := debugproblem.New(db, e.Group("/problems")); err != nil {
+	if _, err := debugproblem.New(db, e.Group("/api/problems")); err != nil {
 		log.Fatal(err)
 	}
 
-	// e.Start(":80")
-	e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
+	if _, err := submit.New(db, e.Group("/api/submit")); err != nil {
+		log.Fatal(err)
+	}
+
+	e.Start(":80")
+	// e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
 }

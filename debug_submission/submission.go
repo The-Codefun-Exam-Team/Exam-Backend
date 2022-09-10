@@ -1,4 +1,4 @@
-package debugproblem
+package debugsubmission
 
 import (
 	"github.com/labstack/echo/v4"
@@ -8,17 +8,16 @@ import (
 
 type Group struct {
 	group *echo.Group
-	db    *db.DB
+	db *db.DB
 }
 
 func New(db *db.DB, g *echo.Group) (*Group, error) {
 	grp := &Group{
 		group: g,
-		db:    db,
+		db: db,
 	}
 
-	g.GET("/", testHandler)
-	g.GET("/:code/", grp.ProblemGet)
+	// g.GET("/:id/", )
 
 	return grp, nil
 }
