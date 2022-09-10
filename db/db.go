@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
-	"os"
 	"fmt"
+	"os"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -31,11 +31,11 @@ func New(connection *string) (*DB, error) {
 
 func loadDBConfig() *string {
 	cfg := mysql.Config{
-		User: os.Getenv("DB_USER"),
-		Passwd: os.Getenv("DB_PWD"),
-		Net: "tcp",
-		Addr: fmt.Sprintf("%v:%v", os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
-		DBName: os.Getenv("DB_NAME"),
+		User:                 os.Getenv("DB_USER"),
+		Passwd:               os.Getenv("DB_PWD"),
+		Net:                  "tcp",
+		Addr:                 fmt.Sprintf("%v:%v", os.Getenv("DB_HOST"), os.Getenv("DB_PORT")),
+		DBName:               os.Getenv("DB_NAME"),
 		AllowNativePasswords: true,
 	}
 

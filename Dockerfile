@@ -26,7 +26,7 @@ WORKDIR /
 
 COPY --from=build /app/main ./main
 
-EXPOSE 80
+EXPOSE 80 443
 
 # Run the executable when the image is run
 CMD [ "./main" ]

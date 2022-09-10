@@ -2,16 +2,20 @@ package main
 
 import (
 	"log"
-	
+
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 )
 
-func main(){
+func main() {
 	e := echo.New()
+
+	e.Pre(middleware.HTTPSRedirect())
+	e.Pre(middleware.RemoveTrailingSlash())
 
 	db, err := db.New(nil)
 	if err != nil {
@@ -28,5 +32,6 @@ func main(){
 		log.Fatal(err)
 	}
 
-	e.Start(":80")
+	// e.Start(":80")
+	e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
 }

@@ -5,25 +5,25 @@ import (
 )
 
 type DebugProblem struct {
-	Dpid int
-	Code string
-	Name string
-	Status string
-	Solved int
-	Total int
-	Rid int
-	Pid int
+	Dpid     int
+	Code     string
+	Name     string
+	Status   string
+	Solved   int
+	Total    int
+	Rid      int
+	Pid      int
 	Language string
-	Score float32
-	Result string
+	Score    float32
+	Result   string
 }
 
 type JSONDebugProblem struct {
-	Problem JSONProblem `json:"problem"`
-	Language string `json:"language"`
-	Result string `json:"result"`
-	Score float32 `json:"score"`
-	Code string `json:"code"`
+	Problem  JSONProblem `json:"problem"`
+	Language string      `json:"language"`
+	Result   string      `json:"result"`
+	Score    float32     `json:"score"`
+	Code     string      `json:"code"`
 }
 
 func ReadDebugProblemWithID(db *db.DB, dpid int) (DebugProblem, error) {
@@ -32,7 +32,7 @@ func ReadDebugProblemWithID(db *db.DB, dpid int) (DebugProblem, error) {
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE dpid = ?", dpid)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
-	&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
+		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
 		return prob, err
 	}
 
@@ -45,7 +45,7 @@ func ReadDebugProblemWithCode(db *db.DB, code string) (DebugProblem, error) {
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE code = ?", code)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
-	&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
+		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
 		return prob, err
 	}
 
@@ -54,7 +54,7 @@ func ReadDebugProblemWithCode(db *db.DB, code string) (DebugProblem, error) {
 
 func WriteDebugProblem(db *db.DB, prob DebugProblem) (int64, error) {
 	res, err := db.Exec("INSERT INTO debug_problems (code, name, status, solved, total, rid, pid, language, score, result) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-	prob.Code, prob.Name, prob.Status, prob.Total, prob.Rid, prob.Pid, prob.Language, prob.Score, prob.Result)
+		prob.Code, prob.Name, prob.Status, prob.Total, prob.Rid, prob.Pid, prob.Language, prob.Score, prob.Result)
 
 	if err != nil {
 		return 0, err
@@ -101,10 +101,10 @@ func ReadJSONDebugProblemWithCode(db *db.DB, code string) (JSONDebugProblem, err
 	}
 
 	return JSONDebugProblem{
-		Problem: jprob,
+		Problem:  jprob,
 		Language: prob.Language,
-		Result: prob.Result,
-		Score: prob.Score,
-		Code: codetext,
+		Result:   prob.Result,
+		Score:    prob.Score,
+		Code:     codetext,
 	}, nil
 }
