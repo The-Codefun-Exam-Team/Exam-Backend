@@ -90,7 +90,7 @@ func (g *Group) Submit(c echo.Context) error {
 
 	sub := models.DebugSubmission{
 		Dpid:       dprob.Dpid,
-		Rid: 		resp.Rid,
+		Rid:        resp.Rid,
 		Tid:        u.Data.Tid,
 		Language:   run.Language,
 		Submittime: time.Now().Unix(),

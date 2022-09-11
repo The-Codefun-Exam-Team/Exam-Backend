@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	
-	"os"
+
 	"flag"
+	"os"
 
 	"github.com/joho/godotenv"
 
@@ -58,7 +58,7 @@ func main() {
 	}
 
 	listen_addr := os.Getenv("LISTEN_ADDR")
-	if err := e.Start(listen_addr); err != nil{
+	if err := e.Start(listen_addr); err != nil {
 		log.Fatal(err)
 	}
 
