@@ -13,6 +13,7 @@ import (
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
 )
@@ -49,6 +50,10 @@ func main() {
 	}
 
 	if _, err := submit.New(db, e.Group("/api/submit")); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := debugsubmission.New(db, e.Group("/api/submission")); err != nil {
 		log.Fatal(err)
 	}
 
