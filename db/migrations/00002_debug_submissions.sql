@@ -3,6 +3,7 @@
 CREATE TABLE debug_submissions (
     drid INT auto_increment NOT NULL,
     dpid INT NOT NULL,
+    rid INT NOT NULL,
     tid INT NOT NULL,
     language VARCHAR(8) NOT NULL,
     submittime INT NOT NULL,

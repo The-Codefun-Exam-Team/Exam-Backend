@@ -17,7 +17,7 @@ func New(db *db.DB, g *echo.Group) (*Group, error) {
 		db:    db,
 	}
 
-	// g.GET("/:id/", )
+	g.GET("/:id/", grp.SubmissionGet)
 
 	return grp, nil
 }
