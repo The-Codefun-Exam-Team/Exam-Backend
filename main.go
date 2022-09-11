@@ -41,9 +41,9 @@ func main() {
 
 	db.Ping()
 
-	e.GET("/ping/", general.Ping)
-	e.GET("/debug_problem/", general.TempDebug)
-	e.GET("/debug_submission/:id/", general.TempSubmission)
+	e.GET("/api/ping/", general.Ping)
+	e.GET("/api/debug_problem/", general.TempDebug)
+	e.GET("/api/debug_submission/:id/", general.TempSubmission)
 
 	if _, err := debugproblem.New(db, e.Group("/api/problems")); err != nil {
 		log.Fatal(err)
