@@ -27,7 +27,7 @@ func main() {
 	// Load dotenv file
 	err := godotenv.Load(dotenv_path)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	e := echo.New()
