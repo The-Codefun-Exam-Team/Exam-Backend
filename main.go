@@ -2,6 +2,11 @@ package main
 
 import (
 	"log"
+	
+	"os"
+	"flag"
+
+	"github.com/joho/godotenv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -13,6 +18,17 @@ import (
 )
 
 func main() {
+	// Get dotenv file path
+	dotenv_path_flag := flag.String("env", "", "")
+	flag.Parse()
+	dotenv_path := string(*dotenv_path_flag)
+
+	// Load dotenv file
+	err := godotenv.Load(dotenv_path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e := echo.New()
 
 	// e.Pre(middleware.HTTPSRedirect())
@@ -37,6 +53,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	e.Start(":80")
+	listen_addr := os.Getenv("LISTEN_ADDR")
+	e.Start(listen_addr)
 	// e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
 }
