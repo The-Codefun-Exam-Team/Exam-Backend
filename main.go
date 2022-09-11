@@ -54,6 +54,9 @@ func main() {
 	}
 
 	listen_addr := os.Getenv("LISTEN_ADDR")
-	e.Start(listen_addr)
+	if err := e.Start(listen_addr); err != nil{
+		log.Fatal(err)
+	}
+
 	// e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
 }
