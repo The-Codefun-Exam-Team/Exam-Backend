@@ -15,6 +15,11 @@ func (g *Group) SubmissionGet(c echo.Context) error {
 		return err
 	}
 
+	err = models.ResolveQueue(g.db)
+	if err != nil {
+		return err
+	}
+
 	sub, err := models.ReadJSONDebugSubmission(g.db, id)
 	if err != nil {
 		return err

@@ -75,6 +75,11 @@ func (g *Group) Submit(c echo.Context) error {
 
 	defer rawresp.Body.Close()
 
+	if rawresp.StatusCode != 201 {
+		return c.NoContent(http.StatusBadRequest)
+		// return c.String(http.StatusOK, fmt.Sprintf("Status Code: %v", rawresp.StatusCode))
+	}
+
 	body, err := io.ReadAll(rawresp.Body)
 	if err != nil {
 		return err
@@ -94,7 +99,8 @@ func (g *Group) Submit(c echo.Context) error {
 		Tid:        u.Data.Tid,
 		Language:   run.Language,
 		Submittime: time.Now().Unix(),
-		Score:      100,
+		Result:     "Q",
+		Score:      0,
 		Diff:       0,
 		Code:       c.FormValue("code"),
 	}
@@ -103,6 +109,15 @@ func (g *Group) Submit(c echo.Context) error {
 	if err != nil {
 		return err
 		// return c.String(http.StatusOK, fmt.Sprintf("Error writing submission: %v", err))
+	}
+
+	err = models.AddToQueue(g.db, &models.Queue{
+		Rid:  resp.Rid,
+		Drid: int(drid),
+	})
+	if err != nil {
+		return err
+		// return c.String(http.StatusOK, "Error adding to queue")
 	}
 
 	return c.JSON(http.StatusOK, SubmitReturn{

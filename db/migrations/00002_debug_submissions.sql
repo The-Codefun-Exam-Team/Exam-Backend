@@ -7,6 +7,7 @@ CREATE TABLE debug_submissions (
     tid INT NOT NULL,
     language VARCHAR(8) NOT NULL,
     submittime INT NOT NULL,
+    result VARCHAR(8) NOT NULL,
     score DOUBLE NOT NULL,
     diff DOUBLE NOT NULL,
     code LONGTEXT NOT NULL,
