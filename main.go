@@ -42,7 +42,6 @@ func main() {
 	db.Ping()
 
 	e.GET("/api/ping/", general.Ping)
-	e.GET("/api/debug_problem/D001", general.TempDebug)
 	e.GET("/api/debug_submission/:id/", general.TempSubmission)
 
 	if _, err := debugproblem.New(db, e.Group("/api/problems")); err != nil {
