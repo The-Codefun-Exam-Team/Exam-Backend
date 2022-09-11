@@ -8,13 +8,13 @@ import (
 
 type Group struct {
 	group *echo.Group
-	db *db.DB
+	db    *db.DB
 }
 
 func New(db *db.DB, g *echo.Group) (*Group, error) {
 	grp := &Group{
 		group: g,
-		db: db,
+		db:    db,
 	}
 
 	g.POST("/", grp.Submit)

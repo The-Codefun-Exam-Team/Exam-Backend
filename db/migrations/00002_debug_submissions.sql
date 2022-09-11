@@ -8,6 +8,7 @@ CREATE TABLE debug_submissions (
     submittime INT NOT NULL,
     score DOUBLE NOT NULL,
     diff DOUBLE NOT NULL,
+    code LONGTEXT NOT NULL,
 
     PRIMARY KEY(drid),
 

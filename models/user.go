@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 )
 
 type JSONVerifyUser struct {
@@ -13,22 +11,22 @@ type JSONVerifyUser struct {
 }
 
 type JSONVerify struct {
-	Data JSONVerifyUser `json:"data"`
+	Data  *JSONVerifyUser `json:"data"`
 	Valid bool
 }
 
-func Verify(db *db.DB, bearer_token string) (*JSONVerify, error) {
+func Verify(bearer_token string) (*JSONVerify, error) {
 	var u JSONVerify
 	u.Valid = false
 
-	req, err := http.NewRequest(http.MethodGet, "https://codefun.vn/api/verify", nil)
+	req, err := http.NewRequest(http.MethodPost, "https://codefun.vn/api/verify", nil)
 	if err != nil {
 		return &u, err
 	}
 
 	req.Header.Add("Authorization", bearer_token)
 	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", "Chrome/105.0.0.0")
+	req.Header.Add("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36")
 
 	rawresp, err := http.DefaultClient.Do(req)
 	if err != nil {

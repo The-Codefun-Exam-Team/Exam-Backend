@@ -20,10 +20,10 @@ type DebugProblem struct {
 
 type JSONDebugProblem struct {
 	Problem  *JSONProblem `json:"problem"`
-	Language string      `json:"language"`
-	Result   string      `json:"result"`
-	Score    float32     `json:"score"`
-	Code     string      `json:"code"`
+	Language string       `json:"language"`
+	Result   string       `json:"result"`
+	Score    float32      `json:"score"`
+	Code     string       `json:"code"`
 }
 
 func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {

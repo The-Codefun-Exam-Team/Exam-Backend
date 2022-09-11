@@ -12,6 +12,7 @@ type DebugSubmission struct {
 	Submittime int64
 	Score      float64
 	Diff       float64
+	Code       string
 }
 
 func ReadDebugSubmission(db *db.DB, id int) (*DebugSubmission, error) {
@@ -19,7 +20,7 @@ func ReadDebugSubmission(db *db.DB, id int) (*DebugSubmission, error) {
 
 	row := db.QueryRow("SELECT * FROM debug_submissions WHERE drid = ?", id)
 
-	if err := row.Scan(&sub.Drid, &sub.Dpid, &sub.Tid, &sub.Language, &sub.Submittime, &sub.Score, &sub.Diff); err != nil {
+	if err := row.Scan(&sub.Drid, &sub.Dpid, &sub.Tid, &sub.Language, &sub.Submittime, &sub.Score, &sub.Diff, &sub.Code); err != nil {
 		return &sub, err
 	}
 
@@ -27,8 +28,8 @@ func ReadDebugSubmission(db *db.DB, id int) (*DebugSubmission, error) {
 }
 
 func WriteDebugSubmission(db *db.DB, sub *DebugSubmission) (int64, error) {
-	res, err := db.Exec("INSERT INTO debug_submissions (dpid, tid, language, submittime, score, diff) VALUES (?, ?, ?, ?, ?, ?)",
-	sub.Dpid, sub.Tid, sub.Language, sub.Submittime, sub.Score, sub.Diff)
+	res, err := db.Exec("INSERT INTO debug_submissions (dpid, tid, language, submittime, score, diff, code) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		sub.Dpid, sub.Tid, sub.Language, sub.Submittime, sub.Score, sub.Diff, sub.Code)
 	if err != nil {
 		return 0, nil
 	}
