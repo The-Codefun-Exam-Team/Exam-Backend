@@ -29,6 +29,13 @@ func (g *Group) SubmissionGet(c echo.Context) error {
 		return c.String(http.StatusForbidden, "Invalid token")
 	}
 
+	log.Print("Resolving queue")
+
+	err = models.ResolveQueue(g.db)
+	if err != nil {
+		return err
+	}
+
 	log.Print("Reading debug submission")
 
 	sub, err := models.ReadDebugSubmission(g.db, id)
