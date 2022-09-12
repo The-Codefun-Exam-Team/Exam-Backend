@@ -43,34 +43,43 @@ func ResolveQueue(db *db.DB) error {
 	defer rows.Close()
 
 	for rows.Next() {
+		log.Print("Scanning")
+
 		var q Queue
 		if err := rows.Scan(&q.Rid, &q.Drid); err != nil {
 			return err
 		}
+
+		log.Printf("Scanned rid = %v, drid = %v", q.Rid, q.Drid)
+
+		log.Print("Reading run")
 
 		run, err := ReadRun(db, q.Rid)
 		if err != nil {
 			return err
 		}
 
-		dprob, err := ReadDebugSubmission(db, q.Drid)
-		if err != nil {
-			return err
-		}
-
-		org_code, err := ReadSubsCode(db, dprob.Rid)
-		if err != nil {
-			return err
-		}
-
-		org_len := len(general.Format(org_code))
+		log.Print("Reading debug sub")
 
 		sub, err := ReadDebugSubmission(db, q.Drid)
 		if err != nil {
 			return err
 		}
 
+		log.Print("Reading subs code")
+
+		org_code, err := ReadSubsCode(db, sub.Rid)
+		if err != nil {
+			return err
+		}
+
+		log.Print("Formatting")
+
+		org_len := len(general.Format(org_code))
+
 		percentage := float64(sub.Diff) / float64(org_len)
+
+		log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
 
 		var final_score float64
 
@@ -86,10 +95,16 @@ func ResolveQueue(db *db.DB) error {
 			}
 		}
 
+		log.Printf("Final Score: %v", final_score)
+
+		log.Print("Update debug sub")
+
 		err = UpdateDebugSubmission(db, q.Drid, run.Result, final_score)
 		if err != nil {
 			return err
 		}
+
+		log.Print("Delete from queue")
 
 		err = DeleteFromQueue(db, q.Rid)
 		if err != nil {
