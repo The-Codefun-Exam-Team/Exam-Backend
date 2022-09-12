@@ -64,7 +64,23 @@ func ResolveQueue(db *db.DB) error {
 			return err
 		}
 
-		err = UpdateDebugSubmission(db, q.Drid, run.Result, float64(sub.Diff) / float64(org_len))
+		percentage := float64(sub.Diff) / float64(org_len)
+
+		var final_score float64
+
+		if run.Result != "AC" {
+			final_score = 0
+		} else {
+			if percentage >= 80 {
+				final_score = 100
+			} else if percentage < 40 {
+				final_score = 0
+			} else{
+				final_score = (percentage - 40) / (80 - 40)
+			}
+		}
+
+		err = UpdateDebugSubmission(db, q.Drid, run.Result, final_score)
 		if err != nil {
 			return err
 		}
