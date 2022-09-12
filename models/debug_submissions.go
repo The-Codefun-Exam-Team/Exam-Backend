@@ -18,7 +18,7 @@ type DebugSubmission struct {
 }
 
 type JSONDebugSubmission struct {
-	Dpid  int     `json:"debug_problem_id"`
+	Dpcode  string     `json:"debug_problem_code"`
 	Rid   int     `json:"codefun_id"`
 	Score float64 `json:"edit_result"`
 	Diff  int     `json:"edit_score"`
@@ -65,8 +65,13 @@ func ReadJSONDebugSubmission(db *db.DB, id int) (*JSONDebugSubmission, error) {
 		return nil, err
 	}
 
+	dprob, err := ReadDebugProblemWithID(db, sub.Dpid)
+	if err != nil {
+		return nil, err
+	}
+
 	return &JSONDebugSubmission{
-		Dpid:  sub.Dpid,
+		Dpcode:  dprob.Code,
 		Rid:   sub.Rid,
 		Score: sub.Score,
 		Diff:  int(sub.Diff),
