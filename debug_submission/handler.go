@@ -15,15 +15,33 @@ func (g *Group) SubmissionGet(c echo.Context) error {
 		return err
 	}
 
+	u, err := models.Verify(c.Request().Header.Get("Authorization"))
+	if err != nil {
+		return err
+	}
+
+	if !u.Valid {
+		return c.String(http.StatusForbidden, "Invalid token")
+	}
+
 	err = models.ResolveQueue(g.db)
 	if err != nil {
 		return err
 	}
 
-	sub, err := models.ReadJSONDebugSubmission(g.db, id)
+	sub, err := models.ReadDebugSubmission(g.db, id)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, &sub)
+	if u.Data.Tid != sub.Tid {
+		return c.String(http.StatusForbidden, "Invalid token")
+	}
+
+	jsub, err := models.ReadJSONDebugSubmission(g.db, id)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, &jsub)
 }

@@ -2,6 +2,7 @@ package submit
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -25,8 +26,8 @@ type SubmitReturn struct {
 func (g *Group) Submit(c echo.Context) error {
 	u, err := models.Verify(c.Request().Header.Get("Authorization"))
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error while verifying: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error while verifying: %v", err))
 	}
 
 	if !u.Valid {
@@ -35,20 +36,20 @@ func (g *Group) Submit(c echo.Context) error {
 
 	dprob, err := models.ReadDebugProblemWithCode(g.db, c.FormValue("problem"))
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error while finding dprob (form: %v)): %v", c.FormValue("problem"), err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error while finding dprob (form: %v)): %v", c.FormValue("problem"), err))
 	}
 
 	run, err := models.ReadRun(g.db, dprob.Rid)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error while finding run: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error while finding run: %v", err))
 	}
 
 	prob, err := models.ReadProblemWithID(g.db, dprob.Pid)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error while finding prob: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error while finding prob: %v", err))
 	}
 
 	form_values_send := url.Values{}
@@ -59,8 +60,8 @@ func (g *Group) Submit(c echo.Context) error {
 
 	req, err := http.NewRequest(http.MethodPost, "https://codefun.vn/api/submit", strings.NewReader(form_values_send.Encode()))
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error creating request: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error creating request: %v", err))
 	}
 
 	req.Header.Add("Authorization", c.Request().Header.Get("Authorization"))
@@ -70,28 +71,28 @@ func (g *Group) Submit(c echo.Context) error {
 
 	rawresp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error processing request: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error processing request: %v", err))
 	}
 
 	defer rawresp.Body.Close()
 
 	if rawresp.StatusCode != 201 {
-		return c.NoContent(http.StatusBadRequest)
-		// return c.String(http.StatusOK, fmt.Sprintf("Status Code: %v", rawresp.StatusCode))
+		// return c.NoContent(http.StatusBadRequest)
+		return c.String(http.StatusOK, fmt.Sprintf("Status Code: %v", rawresp.StatusCode))
 	}
 
 	body, err := io.ReadAll(rawresp.Body)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error reading body: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error reading body: %v", err))
 	}
 
 	var resp SubmitResponse
 	err = json.Unmarshal(body, &resp)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error: %v (Text: %v)", err, body))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error: %v (Text: %v)", err, body))
 	}
 
 	org_code, err := models.ReadSubsCode(g.db, dprob.Rid)
@@ -113,8 +114,8 @@ func (g *Group) Submit(c echo.Context) error {
 
 	drid, err := models.WriteDebugSubmission(g.db, &sub)
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, fmt.Sprintf("Error writing submission: %v", err))
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error writing submission: %v", err))
 	}
 
 	err = models.AddToQueue(g.db, &models.Queue{
@@ -122,8 +123,8 @@ func (g *Group) Submit(c echo.Context) error {
 		Drid: int(drid),
 	})
 	if err != nil {
-		return err
-		// return c.String(http.StatusOK, "Error adding to queue")
+		// return err
+		return c.String(http.StatusOK, "Error adding to queue")
 	}
 
 	return c.JSON(http.StatusOK, SubmitReturn{

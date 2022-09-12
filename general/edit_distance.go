@@ -12,7 +12,7 @@ func min(a int, b int) int {
 }
 
 func EditDistance(rawcode1 string, rawcode2 string) int {
-    var i, j int
+	var i, j int
 
 	code1 := Format(rawcode1)
 	code2 := Format(rawcode2)
@@ -33,9 +33,9 @@ func EditDistance(rawcode1 string, rawcode2 string) int {
 			if code1[i-1] == code2[j-1] {
 				dp2[j] = dp1[j-1]
 			} else {
-                dp2[j] = 1 + min(dp1[j], min(dp2[j-1], dp1[j-1]))
-            }
-        }
+				dp2[j] = 1 + min(dp1[j], min(dp2[j-1], dp1[j-1]))
+			}
+		}
 
 		for j = 0; j <= m; j++ {
 			dp1[j] = dp2[j]

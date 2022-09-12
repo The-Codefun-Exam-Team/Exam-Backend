@@ -75,7 +75,7 @@ func ResolveQueue(db *db.DB) error {
 				final_score = 100
 			} else if percentage < 40 {
 				final_score = 0
-			} else{
+			} else {
 				final_score = (percentage - 40) / (80 - 40)
 			}
 		}
