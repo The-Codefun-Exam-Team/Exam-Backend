@@ -1,9 +1,9 @@
 package debugsubmission
 
 import (
+	"log"
 	"net/http"
 	"strconv"
-	"log"
 
 	"github.com/labstack/echo/v4"
 
@@ -12,7 +12,7 @@ import (
 
 func (g *Group) SubmissionGet(c echo.Context) error {
 	log.Print("Getting ID")
-	
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
@@ -29,12 +29,12 @@ func (g *Group) SubmissionGet(c echo.Context) error {
 		return c.String(http.StatusForbidden, "Invalid token")
 	}
 
-	log.Print("Resolving queue")
+	// log.Print("Resolving queue")
 
-	err = models.ResolveQueue(g.db)
-	if err != nil {
-		return err
-	}
+	// err = models.ResolveQueue(g.db)
+	// if err != nil {
+	// 	return err
+	// }
 
 	log.Print("Reading debug submission")
 
