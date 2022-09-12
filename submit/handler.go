@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"strings"
 	"time"
+	"log"
 
 	"github.com/labstack/echo/v4"
 
@@ -69,6 +70,8 @@ func (g *Group) Submit(c echo.Context) error {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("User-Agent", "Chrome/105.0.0.0")
 
+	log.Print("Creating request")
+
 	rawresp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		// return err
@@ -77,16 +80,24 @@ func (g *Group) Submit(c echo.Context) error {
 
 	defer rawresp.Body.Close()
 
+	log.Print("Sent request")
+
+	log.Printf("Status Code: %v", rawresp.StatusCode)
+
 	if rawresp.StatusCode != 201 {
 		// return c.NoContent(http.StatusBadRequest)
 		return c.String(http.StatusOK, fmt.Sprintf("Status Code: %v", rawresp.StatusCode))
 	}
+
+	log.Print("Reading body")
 
 	body, err := io.ReadAll(rawresp.Body)
 	if err != nil {
 		// return err
 		return c.String(http.StatusOK, fmt.Sprintf("Error reading body: %v", err))
 	}
+
+	log.Print("Unmarshal JSON")
 
 	var resp SubmitResponse
 	err = json.Unmarshal(body, &resp)
@@ -95,10 +106,14 @@ func (g *Group) Submit(c echo.Context) error {
 		return c.String(http.StatusOK, fmt.Sprintf("Error: %v (Text: %v)", err, body))
 	}
 
+	log.Print("Reading SubsCode")
+
 	org_code, err := models.ReadSubsCode(g.db, dprob.Rid)
 	if err != nil {
 		return err
 	}
+
+	log.Print("Creating debug submission")
 
 	sub := models.DebugSubmission{
 		Dpid:       dprob.Dpid,
@@ -112,11 +127,15 @@ func (g *Group) Submit(c echo.Context) error {
 		Code:       c.FormValue("code"),
 	}
 
+	log.Print("Writing submission")
+
 	drid, err := models.WriteDebugSubmission(g.db, &sub)
 	if err != nil {
 		// return err
 		return c.String(http.StatusOK, fmt.Sprintf("Error writing submission: %v", err))
 	}
+
+	log.Print("Add to queue")
 
 	err = models.AddToQueue(g.db, &models.Queue{
 		Rid:  resp.Rid,
@@ -126,6 +145,8 @@ func (g *Group) Submit(c echo.Context) error {
 		// return err
 		return c.String(http.StatusOK, "Error adding to queue")
 	}
+
+	log.Printf("Returning (%v)", int(drid))
 
 	return c.JSON(http.StatusOK, SubmitReturn{
 		Drid: int(drid),
