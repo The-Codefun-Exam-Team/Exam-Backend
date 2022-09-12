@@ -10,6 +10,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
 )
 
@@ -93,6 +94,11 @@ func (g *Group) Submit(c echo.Context) error {
 		// return c.String(http.StatusOK, fmt.Sprintf("Error: %v (Text: %v)", err, body))
 	}
 
+	org_code, err := models.ReadSubsCode(g.db, dprob.Rid)
+	if err != nil {
+		return err
+	}
+
 	sub := models.DebugSubmission{
 		Dpid:       dprob.Dpid,
 		Rid:        resp.Rid,
@@ -101,7 +107,7 @@ func (g *Group) Submit(c echo.Context) error {
 		Submittime: time.Now().Unix(),
 		Result:     "Q",
 		Score:      0,
-		Diff:       0,
+		Diff:       general.EditDistance(c.FormValue("code"), org_code),
 		Code:       c.FormValue("code"),
 	}
 

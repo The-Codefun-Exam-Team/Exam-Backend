@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 )
 
 type Queue struct {
@@ -46,7 +47,24 @@ func ResolveQueue(db *db.DB) error {
 			return err
 		}
 
-		err = UpdateDebugSubmission(db, q.Drid, run.Result, 100)
+		dprob, err := ReadDebugSubmission(db, q.Drid)
+		if err != nil {
+			return err
+		}
+
+		org_code, err := ReadSubsCode(db, dprob.Rid)
+		if err != nil {
+			return err
+		}
+
+		org_len := len(general.Format(org_code))
+
+		sub, err := ReadDebugSubmission(db, q.Drid)
+		if err != nil {
+			return err
+		}
+
+		err = UpdateDebugSubmission(db, q.Drid, run.Result, float64(sub.Diff) / float64(org_len))
 		if err != nil {
 			return err
 		}

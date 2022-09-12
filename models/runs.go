@@ -17,14 +17,14 @@ type Run struct {
 	Score      float32
 }
 
-func ReadRun(db *db.DB, rid int) (Run, error) {
+func ReadRun(db *db.DB, rid int) (*Run, error) {
 	var run Run
 
 	row := db.QueryRow("SELECT * FROM runs WHERE rid = ?", rid)
 	if err := row.Scan(&run.Rid, &run.Pid, &run.Tid, &run.Language, &run.Time, &run.Result, &run.Access,
 		&run.Submittime, &run.Scored, &run.Score); err != nil {
-		return run, err
+		return nil, err
 	}
 
-	return run, nil
+	return &run, nil
 }
