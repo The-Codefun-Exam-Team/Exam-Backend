@@ -152,7 +152,8 @@ func (g *Group) Submit(c echo.Context) error {
 		Drid: int(drid),
 	}
 
-	log.Printf("JSON: %v", sub_ret)
+	json_sub_ret, _ := json.Marshal(sub_ret)
+	log.Printf("JSON Return Value: %v", string(json_sub_ret))
 
 	return c.JSON(http.StatusOK, &sub_ret)
 }
