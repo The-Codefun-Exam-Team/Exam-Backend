@@ -148,7 +148,11 @@ func (g *Group) Submit(c echo.Context) error {
 
 	log.Printf("Returning (%v)", int(drid))
 
-	return c.JSON(http.StatusOK, &SubmitReturn{
+	sub_ret := SubmitReturn{
 		Drid: int(drid),
-	})
+	}
+
+	log.Printf("JSON: %v", sub_ret)
+
+	return c.JSON(http.StatusOK, &sub_ret)
 }
