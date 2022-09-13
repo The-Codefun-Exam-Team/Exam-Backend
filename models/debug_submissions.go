@@ -52,7 +52,7 @@ func WriteDebugSubmission(db *db.DB, sub *DebugSubmission) (int64, error) {
 }
 
 func UpdateDebugSubmission(db *db.DB, id int, result string, score float64) error {
-	_, err := db.Exec("UPDATE debug_submissions SET result = ?, score = ? WHERE drid = ?", result, score, id)
+	_, err := db.Exec("UPDATE debug_submissions SET result = ?, score = ? WHERE id = ?", result, score, id)
 	if err != nil {
 		return err
 	}
