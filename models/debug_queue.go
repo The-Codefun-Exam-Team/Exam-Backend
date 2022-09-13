@@ -77,7 +77,7 @@ func ResolveQueue(db *db.DB) error {
 
 		org_len := len(general.Format(org_code))
 
-		percentage := float64(sub.Diff) / float64(org_len)
+		percentage := float64(sub.Diff * 100) / float64(org_len)
 
 		log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
 
@@ -104,12 +104,12 @@ func ResolveQueue(db *db.DB) error {
 			return err
 		}
 
-		log.Print("Delete from queue")
+		// log.Print("Delete from queue")
 
-		err = DeleteFromQueue(db, q.Rid)
-		if err != nil {
-			return err
-		}
+		// err = DeleteFromQueue(db, q.Rid)
+		// if err != nil {
+		// 	return err
+		// }
 	}
 
 	if err := rows.Err(); err != nil {
