@@ -46,7 +46,7 @@ func EditDistance(rawcode1 string, rawcode2 string) int {
 }
 
 func Format(code string) string {
-	whitespace_pattern := regexp.MustCompile(`/[\s\r\n\t]+/g`)
+	whitespace_pattern := regexp.MustCompile(`[\s\r\n\t]+`)
 	code = whitespace_pattern.ReplaceAllString(code, "")
 
 	return code

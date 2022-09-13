@@ -38,48 +38,50 @@ func ResolveQueue(db *db.DB) error {
 		return err
 	}
 
-	log.Print("Got results")
+	// log.Print("Got results")
 
 	defer rows.Close()
 
+	// log.Print("Parsing rows")
+
 	for rows.Next() {
-		log.Print("Scanning")
+		// log.Print("Scanning")
 
 		var q Queue
 		if err := rows.Scan(&q.Rid, &q.Drid); err != nil {
 			return err
 		}
 
-		log.Printf("Scanned rid = %v, drid = %v", q.Rid, q.Drid)
+		// log.Printf("Scanned rid = %v, drid = %v", q.Rid, q.Drid)
 
-		log.Print("Reading run")
+		// log.Print("Reading run")
 
 		run, err := ReadRun(db, q.Rid)
 		if err != nil {
 			return err
 		}
 
-		log.Print("Reading debug sub")
+		// log.Print("Reading debug sub")
 
 		sub, err := ReadDebugSubmission(db, q.Drid)
 		if err != nil {
 			return err
 		}
 
-		log.Print("Reading subs code")
+		// log.Print("Reading subs code")
 
 		org_code, err := ReadSubsCode(db, sub.Rid)
 		if err != nil {
 			return err
 		}
 
-		log.Print("Formatting")
+		// log.Print("Formatting")
 
 		org_len := len(general.Format(org_code))
 
-		percentage := float64(sub.Diff * 100) / float64(org_len)
+		percentage := float64((org_len - sub.Diff) * 100) / float64(org_len)
 
-		log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
+		// log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
 
 		var final_score float64
 
@@ -91,13 +93,13 @@ func ResolveQueue(db *db.DB) error {
 			} else if percentage < 40 {
 				final_score = 0
 			} else {
-				final_score = (percentage - 40) / (80 - 40)
+				final_score = ((percentage - 40) / (80 - 40)) * 100
 			}
 		}
 
 		log.Printf("Final Score: %v", final_score)
 
-		log.Print("Update debug sub")
+		// log.Print("Update debug sub")
 
 		err = UpdateDebugSubmission(db, q.Drid, run.Result, final_score)
 		if err != nil {
