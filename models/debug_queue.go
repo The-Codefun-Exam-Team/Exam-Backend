@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"log"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
@@ -33,7 +34,7 @@ func DeleteFromQueue(db *db.DB, id int) error {
 func ResolveQueue(db *db.DB) error {
 	log.Print("Querying")
 
-	rows, err := db.Query("SELECT runs.rid, debug_queue.drid FROM runs INNER JOIN debug_queue ON runs.rid = debug_queue.rid WHERE runs.result NOT IN ('Q', 'R', '...')")
+	rows, err := db.Query("SELECT runs.rid, debug_queue.drid, runs.result, runs.score FROM runs INNER JOIN debug_queue ON runs.rid = debug_queue.rid WHERE runs.result NOT IN ('Q', 'R', '...')")
 	if err != nil {
 		return err
 	}
@@ -48,18 +49,13 @@ func ResolveQueue(db *db.DB) error {
 		// log.Print("Scanning")
 
 		var q Queue
-		if err := rows.Scan(&q.Rid, &q.Drid); err != nil {
+		var result string
+		var score float64
+		if err := rows.Scan(&q.Rid, &q.Drid, &result, &score); err != nil {
 			return err
 		}
 
 		// log.Printf("Scanned rid = %v, drid = %v", q.Rid, q.Drid)
-
-		// log.Print("Reading run")
-
-		run, err := ReadRun(db, q.Rid)
-		if err != nil {
-			return err
-		}
 
 		// log.Print("Reading debug sub")
 
@@ -85,7 +81,7 @@ func ResolveQueue(db *db.DB) error {
 
 		var final_score float64
 
-		if run.Result != "AC" {
+		if result != "AC" {
 			final_score = 0
 		} else {
 			if percentage >= 80 {
@@ -101,21 +97,45 @@ func ResolveQueue(db *db.DB) error {
 
 		// log.Print("Update debug sub")
 
-		err = UpdateDebugSubmission(db, q.Drid, run.Result, final_score)
+		err = UpdateDebugSubmission(db, q.Drid, result, final_score)
 		if err != nil {
 			return err
 		}
 
 		// log.Print("Delete from queue")
 
-		// err = DeleteFromQueue(db, q.Rid)
-		// if err != nil {
-		// 	return err
-		// }
+		err = DeleteFromQueue(db, q.Rid)
+		if err != nil {
+			return err
+		}
 	}
 
 	if err := rows.Err(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func Resolve1(db *db.DB, drid int) error {
+	row := db.QueryRow("SELECT * FROM debug_queue WHERE drid = ?", drid)
+
+	var q Queue
+	if err := row.Scan(&q.Rid, &q.Drid); err != nil {
+		if err == sql.ErrNoRows {
+			return nil
+		} else {
+			return err
+		}
+	}
+
+	run, err := ReadRun(db, q.Rid)
+	if err != nil {
+		return err
+	}
+
+	if run.Result == `Q` || run.Result == `R` || run.Result == `...` {
+		return nil
 	}
 
 	return nil
