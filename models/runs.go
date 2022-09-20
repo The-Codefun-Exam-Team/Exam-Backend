@@ -14,7 +14,7 @@ type Run struct {
 	Access     string
 	Submittime int
 	Scored     int
-	Score      float32
+	Score      float64
 }
 
 func ReadRun(db *db.DB, rid int) (*Run, error) {

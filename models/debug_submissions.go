@@ -22,6 +22,8 @@ type JSONDebugSubmission struct {
 	Rid    int     `json:"codefun_id"`
 	Score  float64 `json:"edit_result"`
 	Diff   int     `json:"edit_score"`
+	CFResult string  `json:"result"`
+	CFScore float64 `json:"score"`
 }
 
 func ReadDebugSubmission(db *db.DB, id int) (*DebugSubmission, error) {
@@ -52,7 +54,7 @@ func WriteDebugSubmission(db *db.DB, sub *DebugSubmission) (int64, error) {
 }
 
 func UpdateDebugSubmission(db *db.DB, id int, result string, score float64) error {
-	_, err := db.Exec("UPDATE debug_submissions SET result = ?, score = ? WHERE id = ?", result, score, id)
+	_, err := db.Exec("UPDATE debug_submissions SET result = ?, score = ? WHERE drid = ?", result, score, id)
 	if err != nil {
 		return err
 	}
@@ -70,10 +72,17 @@ func ReadJSONDebugSubmission(db *db.DB, id int) (*JSONDebugSubmission, error) {
 		return nil, err
 	}
 
+	run, err := ReadRun(db, sub.Rid)
+	if err != nil {
+		return nil, err
+	}
+
 	return &JSONDebugSubmission{
 		Dpcode: dprob.Code,
 		Rid:    sub.Rid,
 		Score:  sub.Score,
 		Diff:   int(sub.Diff),
+		CFResult: run.Result,
+		CFScore: run.Score,
 	}, nil
 }
