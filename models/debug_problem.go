@@ -16,6 +16,7 @@ type DebugProblem struct {
 	Language string
 	Score    float64
 	Result   string
+	MinDiff int
 }
 
 type JSONDebugProblem struct {
@@ -33,7 +34,7 @@ func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE dpid = ?", dpid)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
-		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
+		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result, &prob.MinDiff); err != nil {
 		return &prob, err
 	}
 
@@ -46,7 +47,7 @@ func ReadDebugProblemWithCode(db *db.DB, code string) (*DebugProblem, error) {
 	row := db.QueryRow("SELECT * FROM debug_problems WHERE code = ?", code)
 
 	if err := row.Scan(&prob.Dpid, &prob.Code, &prob.Name, &prob.Status, &prob.Solved, &prob.Total,
-		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result); err != nil {
+		&prob.Rid, &prob.Pid, &prob.Language, &prob.Score, &prob.Result, &prob.MinDiff); err != nil {
 		return &prob, err
 	}
 
@@ -54,8 +55,8 @@ func ReadDebugProblemWithCode(db *db.DB, code string) (*DebugProblem, error) {
 }
 
 func WriteDebugProblem(db *db.DB, prob *DebugProblem) (int64, error) {
-	res, err := db.Exec("INSERT INTO debug_problems (code, name, status, solved, total, rid, pid, language, score, result) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-		prob.Code, prob.Name, prob.Status, prob.Total, prob.Rid, prob.Pid, prob.Language, prob.Score, prob.Result)
+	res, err := db.Exec("INSERT INTO debug_problems (code, name, status, solved, total, rid, pid, language, score, result, mindiff) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		prob.Code, prob.Name, prob.Status, prob.Total, prob.Rid, prob.Pid, prob.Language, prob.Score, prob.Result, prob.MinDiff)
 
 	if err != nil {
 		return 0, err
