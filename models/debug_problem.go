@@ -16,7 +16,7 @@ type DebugProblem struct {
 	Language string
 	Score    float64
 	Result   string
-	MinDiff int
+	MinDiff  int
 }
 
 type JSONDebugProblem struct {

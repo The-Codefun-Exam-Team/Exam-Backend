@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
@@ -32,22 +31,14 @@ func DeleteFromQueue(db *db.DB, id int) error {
 }
 
 func ResolveQueue(db *db.DB) error {
-	log.Print("Querying")
-
 	rows, err := db.Query("SELECT runs.rid, debug_queue.drid, runs.result, runs.score FROM runs INNER JOIN debug_queue ON runs.rid = debug_queue.rid WHERE runs.result NOT IN ('Q', 'R', '...')")
 	if err != nil {
 		return err
 	}
 
-	// log.Print("Got results")
-
 	defer rows.Close()
 
-	// log.Print("Parsing rows")
-
 	for rows.Next() {
-		// log.Print("Scanning")
-
 		var q Queue
 		var result string
 		var score float64
@@ -55,18 +46,7 @@ func ResolveQueue(db *db.DB) error {
 			return err
 		}
 
-		// log.Printf("Scanned rid = %v, drid = %v", q.Rid, q.Drid)
-
-		// log.Print("Reading debug sub")
-
 		sub, err := ReadDebugSubmission(db, q.Drid)
-		if err != nil {
-			return err
-		}
-
-		// log.Print("Reading subs code")
-
-		run, err := ReadRun(db, sub.Rid)
 		if err != nil {
 			return err
 		}
@@ -76,22 +56,12 @@ func ResolveQueue(db *db.DB) error {
 			return err
 		}
 
-		// log.Print("Formatting")
-
-		// log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
-
-		final_score := general.CalculateScore(sub.Diff, run.Score, dprob.Score, dprob.MinDiff)
-
-		log.Printf("Final Score: %v", final_score)
-
-		// log.Print("Update debug sub")
+		final_score := general.CalculateScore(sub.Diff, score, dprob.Score, dprob.MinDiff)
 
 		err = UpdateDebugSubmission(db, q.Drid, result, final_score)
 		if err != nil {
 			return err
 		}
-
-		// log.Print("Delete from queue")
 
 		err = DeleteFromQueue(db, q.Rid)
 		if err != nil {
@@ -125,6 +95,28 @@ func Resolve1(db *db.DB, drid int) error {
 
 	if run.Result == `Q` || run.Result == `R` || run.Result == `...` {
 		return nil
+	}
+
+	sub, err := ReadDebugSubmission(db, q.Drid)
+	if err != nil {
+		return err
+	}
+
+	dprob, err := ReadDebugProblemWithID(db, sub.Dpid)
+	if err != nil {
+		return err
+	}
+
+	final_score := general.CalculateScore(sub.Diff, run.Score, dprob.Score, dprob.MinDiff)
+
+	err = UpdateDebugSubmission(db, q.Drid, run.Result, final_score)
+	if err != nil {
+		return err
+	}
+
+	err = DeleteFromQueue(db, q.Rid)
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -1,25 +1,27 @@
 package rankings
 
 import (
-	"log"
 	"database/sql"
+	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
 )
 
 type JSONRanking struct {
-	Avatar string `json:"avatar"`
-	Gid int `json:"group"`
-	Groupname string `json:"groupname"`
-	Tid int `json:"id"`
-	Teamname string `json:"username"`
-	Name string `json:"name"`
-	Rank int `json:"rank"`
-	Score float64 `json:"points"`
+	Avatar    string  `json:"avatar"`
+	Gid       int     `json:"group"`
+	Groupname string  `json:"groupname"`
+	Tid       int     `json:"id"`
+	Teamname  string  `json:"username"`
+	Name      string  `json:"name"`
+	Rank      int     `json:"rank"`
+	Score     float64 `json:"points"`
 }
 
 func (g *Group) RankingsGet(c echo.Context) error {
@@ -27,6 +29,8 @@ func (g *Group) RankingsGet(c echo.Context) error {
 
 	var rows *sql.Rows
 	var err error
+
+	models.ResolveQueue(g.db)
 
 	str_groupid := c.FormValue("group")
 	groupid, err := strconv.Atoi(str_groupid)
@@ -73,7 +77,7 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		return err
 	}
 
-	rank := (pageid-1) * limit + 1
+	rank := (pageid-1)*limit + 1
 	for rows.Next() {
 		var email, teamname, name, groupname string
 		var gid, tid int
@@ -84,14 +88,15 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		}
 
 		ranking = append(ranking, JSONRanking{
-			Avatar: general.GetHash(email),
-			Gid: gid,
+			Avatar: fmt.Sprintf(`https://www.gravatar.com/avatar/` + general.GetHash(email) +
+				`?d=https://s3.amazonaws.com/wll-community-production/images/no-avatar.png&r=r&s=500`),
+			Gid:       gid,
 			Groupname: groupname,
-			Tid: tid,
-			Teamname: teamname,
-			Name: name,
-			Rank: rank,
-			Score: score,
+			Tid:       tid,
+			Teamname:  teamname,
+			Name:      name,
+			Rank:      rank,
+			Score:     score,
 		})
 		rank++
 	}
