@@ -1,7 +1,6 @@
 package debugsubmission
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -11,14 +10,10 @@ import (
 )
 
 func (g *Group) SubmissionGet(c echo.Context) error {
-	log.Print("Getting ID")
-
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return err
 	}
-
-	log.Print("Verifying")
 
 	u, err := models.Verify(c.Request().Header.Get("Authorization"))
 	if err != nil {
@@ -29,34 +24,21 @@ func (g *Group) SubmissionGet(c echo.Context) error {
 		return c.String(http.StatusForbidden, "Invalid token")
 	}
 
-	// log.Print("Resolving queue")
-
-	// err = models.ResolveQueue(g.db)
-	// if err != nil {
-	// 	return err
-	// }
-
-	log.Print("Reading debug submission")
+	models.Resolve1(g.db, id)
 
 	sub, err := models.ReadDebugSubmission(g.db, id)
 	if err != nil {
 		return err
 	}
 
-	log.Print("Checking owner")
-
 	if u.Data.Tid != sub.Tid {
 		return c.String(http.StatusForbidden, "Not the owner")
 	}
-
-	log.Print("Reading JSON Submission")
 
 	jsub, err := models.ReadJSONDebugSubmission(g.db, id)
 	if err != nil {
 		return err
 	}
-
-	log.Print("Returning")
 
 	return c.JSON(http.StatusOK, &jsub)
 }

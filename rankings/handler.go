@@ -1,14 +1,15 @@
 package rankings
 
 import (
-	"log"
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
 )
 
 type JSONRanking struct {
@@ -27,6 +28,8 @@ func (g *Group) RankingsGet(c echo.Context) error {
 
 	var rows *sql.Rows
 	var err error
+
+	models.ResolveQueue(g.db)
 
 	str_groupid := c.FormValue("group")
 	groupid, err := strconv.Atoi(str_groupid)
