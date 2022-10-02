@@ -2,6 +2,7 @@ package rankings
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -87,7 +88,8 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		}
 
 		ranking = append(ranking, JSONRanking{
-			Avatar:    general.GetHash(email),
+			Avatar: fmt.Sprintf(`https://www.gravatar.com/avatar/` + general.GetHash(email) +
+				`?d=https://s3.amazonaws.com/wll-community-production/images/no-avatar.png&r=r&s=500`),
 			Gid:       gid,
 			Groupname: groupname,
 			Tid:       tid,

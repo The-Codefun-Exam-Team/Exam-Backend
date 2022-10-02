@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"log"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
@@ -32,8 +31,6 @@ func DeleteFromQueue(db *db.DB, id int) error {
 }
 
 func ResolveQueue(db *db.DB) error {
-	log.Print("Querying")
-
 	rows, err := db.Query("SELECT runs.rid, debug_queue.drid, runs.result, runs.score FROM runs INNER JOIN debug_queue ON runs.rid = debug_queue.rid WHERE runs.result NOT IN ('Q', 'R', '...')")
 	if err != nil {
 		return err
