@@ -86,3 +86,15 @@ func ReadJSONDebugSubmission(db *db.DB, id int) (*JSONDebugSubmission, error) {
 		CFScore: run.Score,
 	}, nil
 }
+
+func GetMaxScore(db *db.DB, dpid int, tid int) (float64, error) {
+	var max_score float64
+
+	row := db.QueryRow("SELECT MAX(score) FROM debug_submissions WHERE dpid = ? AND tid = ?", dpid, tid)
+
+	if err := row.Scan(&max_score); err != nil {
+		return 0.0, err
+	}
+
+	return max_score, nil
+}
