@@ -1,6 +1,8 @@
 package models
 
 import (
+	"database/sql"
+
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 )
 
@@ -93,6 +95,9 @@ func GetMaxScore(db *db.DB, dpid int, tid int) (float64, error) {
 	row := db.QueryRow("SELECT MAX(score) FROM debug_submissions WHERE dpid = ? AND tid = ?", dpid, tid)
 
 	if err := row.Scan(&max_score); err != nil {
+		if err == sql.ErrNoRows{
+			return 0.0, nil
+		}
 		return 0.0, err
 	}
 

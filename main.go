@@ -58,7 +58,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if _, err := rankings.New(db, e.Group("/api/submission")); err != nil {
+	if _, err := rankings.New(db, e.Group("/api/rankings")); err != nil {
 		log.Fatal(err)
 	}
 
