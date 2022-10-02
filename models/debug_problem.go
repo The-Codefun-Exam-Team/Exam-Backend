@@ -22,8 +22,9 @@ type JSONDebugProblem struct {
 	Problem  *JSONProblem `json:"problem"`
 	Language string       `json:"language"`
 	Result   string       `json:"result"`
-	Score    float32      `json:"score"`
+	Score    float32      `json:"best_score"`
 	Code     string       `json:"code"`
+	// Judge *Judge `json:"judge"`
 }
 
 func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {
@@ -69,35 +70,20 @@ func WriteDebugProblem(db *db.DB, prob *DebugProblem) (int64, error) {
 	return row_count, nil
 }
 
-func ReadSubsCode(db *db.DB, rid int) (string, error) {
-	var r int
-	var code, er string
-	row := db.QueryRow("SELECT * FROM subs_code WHERE rid = ?", rid)
-
-	if err := row.Scan(&r, &code, &er); err != nil {
-		return code, err
-	}
-
-	return code, nil
-}
-
 func ReadJSONDebugProblemWithCode(db *db.DB, code string) (*JSONDebugProblem, error) {
 	prob, err := ReadDebugProblemWithCode(db, code)
 	if err != nil {
-		var jdprob JSONDebugProblem
-		return &jdprob, err
+		return nil, err
 	}
 
 	jprob, err := ReadJSONProblemWithID(db, prob.Pid)
 	if err != nil {
-		var jdprob JSONDebugProblem
-		return &jdprob, err
+		return nil, err
 	}
 
 	codetext, err := ReadSubsCode(db, prob.Rid)
 	if err != nil {
-		var jdprob JSONDebugProblem
-		return &jdprob, err
+		return nil, err
 	}
 
 	return &JSONDebugProblem{
