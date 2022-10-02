@@ -18,12 +18,12 @@ type DebugSubmission struct {
 }
 
 type JSONDebugSubmission struct {
-	Dpcode string  `json:"debug_problem_code"`
-	Rid    int     `json:"codefun_id"`
-	Score  float64 `json:"edit_result"`
-	Diff   int     `json:"edit_score"`
+	Dpcode   string  `json:"debug_problem_code"`
+	Rid      int     `json:"codefun_id"`
+	Score    float64 `json:"edit_result"`
+	Diff     int     `json:"edit_score"`
 	CFResult string  `json:"result"`
-	CFScore float64 `json:"score"`
+	CFScore  float64 `json:"score"`
 }
 
 func ReadDebugSubmission(db *db.DB, id int) (*DebugSubmission, error) {
@@ -78,12 +78,12 @@ func ReadJSONDebugSubmission(db *db.DB, id int) (*JSONDebugSubmission, error) {
 	}
 
 	return &JSONDebugSubmission{
-		Dpcode: dprob.Code,
-		Rid:    sub.Rid,
-		Score:  sub.Score,
-		Diff:   int(sub.Diff),
+		Dpcode:   dprob.Code,
+		Rid:      sub.Rid,
+		Score:    sub.Score,
+		Diff:     int(sub.Diff),
 		CFResult: run.Result,
-		CFScore: run.Score,
+		CFScore:  run.Score,
 	}, nil
 }
 
