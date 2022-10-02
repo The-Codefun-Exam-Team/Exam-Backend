@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"flag"
-	"os"
 
 	"github.com/joho/godotenv"
 
