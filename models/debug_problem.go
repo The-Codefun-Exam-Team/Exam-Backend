@@ -24,7 +24,7 @@ type JSONDebugProblem struct {
 	Result   string       `json:"result"`
 	Score    float32      `json:"best_score"`
 	Code     string       `json:"code"`
-	// Judge *Judge `json:"judge"`
+	Judge *Judge `json:"judge"`
 }
 
 func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {
@@ -86,11 +86,17 @@ func ReadJSONDebugProblemWithCode(db *db.DB, code string) (*JSONDebugProblem, er
 		return nil, err
 	}
 
+	judge, err := ReadJudge(db, prob.Rid)
+	if err != nil {
+		return nil, err
+	}
+
 	return &JSONDebugProblem{
 		Problem:  jprob,
 		Language: prob.Language,
 		Result:   prob.Result,
 		Score:    prob.Score,
 		Code:     codetext,
+		Judge: judge,
 	}, nil
 }
