@@ -99,7 +99,7 @@ func Resolve1(db *db.DB, drid int) error {
 	if run.Result == `Q` || run.Result == `R` || run.Result == `...` {
 		return nil
 	}
-	
+
 	sub, err := ReadDebugSubmission(db, q.Drid)
 	if err != nil {
 		return err

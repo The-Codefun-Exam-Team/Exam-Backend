@@ -1,8 +1,8 @@
 package general
 
 import (
-	"strings"
 	"crypto/md5"
+	"strings"
 )
 
 func GetHash(rawstr string) string {

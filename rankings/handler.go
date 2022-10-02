@@ -13,14 +13,14 @@ import (
 )
 
 type JSONRanking struct {
-	Avatar string `json:"avatar"`
-	Gid int `json:"group"`
-	Groupname string `json:"groupname"`
-	Tid int `json:"id"`
-	Teamname string `json:"username"`
-	Name string `json:"name"`
-	Rank int `json:"rank"`
-	Score float64 `json:"points"`
+	Avatar    string  `json:"avatar"`
+	Gid       int     `json:"group"`
+	Groupname string  `json:"groupname"`
+	Tid       int     `json:"id"`
+	Teamname  string  `json:"username"`
+	Name      string  `json:"name"`
+	Rank      int     `json:"rank"`
+	Score     float64 `json:"points"`
 }
 
 func (g *Group) RankingsGet(c echo.Context) error {
@@ -76,7 +76,7 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		return err
 	}
 
-	rank := (pageid-1) * limit + 1
+	rank := (pageid-1)*limit + 1
 	for rows.Next() {
 		var email, teamname, name, groupname string
 		var gid, tid int
@@ -87,14 +87,14 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		}
 
 		ranking = append(ranking, JSONRanking{
-			Avatar: general.GetHash(email),
-			Gid: gid,
+			Avatar:    general.GetHash(email),
+			Gid:       gid,
 			Groupname: groupname,
-			Tid: tid,
-			Teamname: teamname,
-			Name: name,
-			Rank: rank,
-			Score: score,
+			Tid:       tid,
+			Teamname:  teamname,
+			Name:      name,
+			Rank:      rank,
+			Score:     score,
 		})
 		rank++
 	}

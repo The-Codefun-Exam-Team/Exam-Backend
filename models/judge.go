@@ -34,12 +34,12 @@ func ReadJudge(db *db.DB, rid int) (*Judge, error) {
 		// CE
 		return &Judge{
 			Correct: 0,
-			Total: 0,
+			Total:   0,
 			Tests: []Test{
 				{
-					Verdict: "CE",
+					Verdict:     "CE",
 					RunningTime: 0.000,
-					Message: judge_string,
+					Message:     judge_string,
 				},
 			},
 		}, nil
@@ -50,7 +50,7 @@ func ReadJudge(db *db.DB, rid int) (*Judge, error) {
 
 func ConvertToJudge(raw string) (*Judge, error) {
 	var tests []Test
-	
+
 	score_and_verdict := strings.Split(raw, "////")
 	if len(score_and_verdict) != 2 {
 		return nil, errors.New(`cannot split score and verdict`)
