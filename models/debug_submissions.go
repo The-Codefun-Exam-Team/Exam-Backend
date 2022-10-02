@@ -90,16 +90,17 @@ func ReadJSONDebugSubmission(db *db.DB, id int) (*JSONDebugSubmission, error) {
 }
 
 func GetMaxScore(db *db.DB, dpid int, tid int) (float64, error) {
-	var max_score float64
+	var max_score sql.NullFloat64
 
 	row := db.QueryRow("SELECT MAX(score) FROM debug_submissions WHERE dpid = ? AND tid = ?", dpid, tid)
 
 	if err := row.Scan(&max_score); err != nil {
-		if err == sql.ErrNoRows{
-			return 0.0, nil
-		}
 		return 0.0, err
 	}
 
-	return max_score, nil
+	if !max_score.Valid {
+		return 0.0, nil
+	}
+
+	return max_score.Float64, nil
 }
