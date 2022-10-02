@@ -22,8 +22,10 @@ import (
 func main() {
 	// Get dotenv file path
 	dotenv_path_flag := flag.String("env", "", "")
+	listen_addr_flag := flag.String("p", "", "")
 	flag.Parse()
 	dotenv_path := string(*dotenv_path_flag)
+	
 
 	// Load dotenv file
 	err := godotenv.Load(dotenv_path)
@@ -62,10 +64,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	listen_addr := os.Getenv("LISTEN_ADDR")
+	listen_addr := string(*listen_addr_flag)
 	if err := e.Start(listen_addr); err != nil {
 		log.Fatal(err)
 	}
-
-	// e.StartTLS(":443", "/cert/cert.pem", "/cert/cert.key")
 }
