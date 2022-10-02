@@ -66,32 +66,21 @@ func ResolveQueue(db *db.DB) error {
 
 		// log.Print("Reading subs code")
 
-		org_code, err := ReadSubsCode(db, sub.Rid)
+		run, err := ReadRun(db, sub.Rid)
+		if err != nil {
+			return err
+		}
+
+		dprob, err := ReadDebugProblemWithID(db, sub.Dpid)
 		if err != nil {
 			return err
 		}
 
 		// log.Print("Formatting")
 
-		org_len := len(general.Format(org_code))
-
-		percentage := float64((org_len-sub.Diff)*100) / float64(org_len)
-
 		// log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
 
-		var final_score float64
-
-		if result != "AC" {
-			final_score = 0
-		} else {
-			if percentage >= 80 {
-				final_score = 100
-			} else if percentage < 40 {
-				final_score = 0
-			} else {
-				final_score = ((percentage - 40) / (80 - 40)) * 100
-			}
-		}
+		final_score := general.CalculateScore(sub.Diff, run.Score, dprob.Score, dprob.MinDiff)
 
 		log.Printf("Final Score: %v", final_score)
 
