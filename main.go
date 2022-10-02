@@ -43,18 +43,6 @@ func main() {
 
 	db.Ping()
 
-	for dpid := 1; dpid <= 28; dpid++ {
-		if dpid > 16 && dpid < 23 {
-			continue
-		}
-		row := db.QueryRow("SELECT MIN(diff) FROM debug_submissions WHERE dpid = ? AND result = 'AC'", dpid)
-		var mindiff int
-		if err := row.Scan(&mindiff); err != nil {
-			return
-		}
-		db.Exec("UPDATE debug_problems SET mindiff = ? WHERE dpid = ?", mindiff, dpid)
-	}
-
 	e.GET("/api/ping/", general.Ping)
 	e.GET("/api/debug_submission/:id/", general.TempSubmission)
 
