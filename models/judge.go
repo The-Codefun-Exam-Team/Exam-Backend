@@ -8,15 +8,15 @@ import (
 )
 
 type Test struct {
-	Verdict string `json:"verdict"`
+	Verdict     string  `json:"verdict"`
 	RunningTime float64 `json:"runningTime"`
-	Message string `json:"message"`
+	Message     string  `json:"message"`
 }
 
 type Judge struct {
-	Correct int `json:"correct"`
-	Total int `json:"total"`
-	Tests []Test `json:"tests"`
+	Correct int    `json:"correct"`
+	Total   int    `json:"total"`
+	Tests   []Test `json:"tests"`
 }
 
 func ReadJudge(db *db.DB, rid int) (*Judge, error) {
@@ -45,15 +45,15 @@ func ReadJudge(db *db.DB, rid int) (*Judge, error) {
 		time, _ := strconv.ParseFloat(strtime, 64)
 
 		tests = append(tests, Test{
-			Verdict: result,
+			Verdict:     result,
 			RunningTime: time,
-			Message: e,
+			Message:     e,
 		})
 	}
 
 	return &Judge{
 		Correct: correct,
-		Total: total,
-		Tests: tests,
+		Total:   total,
+		Tests:   tests,
 	}, nil
 }

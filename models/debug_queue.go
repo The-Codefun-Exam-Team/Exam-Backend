@@ -75,7 +75,7 @@ func ResolveQueue(db *db.DB) error {
 
 		org_len := len(general.Format(org_code))
 
-		percentage := float64((org_len - sub.Diff) * 100) / float64(org_len)
+		percentage := float64((org_len-sub.Diff)*100) / float64(org_len)
 
 		// log.Printf("Diff: %v, Percentage: %v", sub.Diff, percentage)
 

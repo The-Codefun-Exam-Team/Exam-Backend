@@ -22,9 +22,9 @@ type JSONDebugProblem struct {
 	Problem  *JSONProblem `json:"problem"`
 	Language string       `json:"language"`
 	Result   string       `json:"result"`
-	MaxScore    float64      `json:"best_score"`
+	MaxScore float64      `json:"best_score"`
 	Code     string       `json:"code"`
-	Judge *Judge `json:"judge"`
+	Judge    *Judge       `json:"judge"`
 }
 
 func ReadDebugProblemWithID(db *db.DB, dpid int) (*DebugProblem, error) {
@@ -102,6 +102,6 @@ func ReadJSONDebugProblemWithCode(db *db.DB, code string, tid int) (*JSONDebugPr
 		Result:   prob.Result,
 		MaxScore: max_score,
 		Code:     codetext,
-		Judge: judge,
+		Judge:    judge,
 	}, nil
 }
