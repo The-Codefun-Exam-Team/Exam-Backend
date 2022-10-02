@@ -10,7 +10,17 @@ import (
 )
 
 func (g *Group) ProblemGet(c echo.Context) error {
-	prob, err := models.ReadJSONDebugProblemWithCode(g.db, c.Param("code"))
+	u, err := models.Verify(c.Request().Header.Get("Authorization"))
+	if err != nil {
+		// return err
+		return c.String(http.StatusOK, fmt.Sprintf("Error while verifying: %v", err))
+	}
+
+	if !u.Valid {
+		return c.String(http.StatusForbidden, "Invalid token")
+	}
+
+	prob, err := models.ReadJSONDebugProblemWithCode(g.db, c.Param("code"), u.Data.Tid)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, fmt.Sprintf("Error: '%v'", err))
 	}

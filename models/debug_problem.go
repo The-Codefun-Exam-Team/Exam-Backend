@@ -14,7 +14,7 @@ type DebugProblem struct {
 	Rid      int
 	Pid      int
 	Language string
-	Score    float32
+	Score    float64
 	Result   string
 }
 
@@ -22,7 +22,7 @@ type JSONDebugProblem struct {
 	Problem  *JSONProblem `json:"problem"`
 	Language string       `json:"language"`
 	Result   string       `json:"result"`
-	Score    float32      `json:"best_score"`
+	MaxScore    float64      `json:"best_score"`
 	Code     string       `json:"code"`
 	Judge *Judge `json:"judge"`
 }
@@ -70,7 +70,7 @@ func WriteDebugProblem(db *db.DB, prob *DebugProblem) (int64, error) {
 	return row_count, nil
 }
 
-func ReadJSONDebugProblemWithCode(db *db.DB, code string) (*JSONDebugProblem, error) {
+func ReadJSONDebugProblemWithCode(db *db.DB, code string, tid int) (*JSONDebugProblem, error) {
 	prob, err := ReadDebugProblemWithCode(db, code)
 	if err != nil {
 		return nil, err
@@ -91,11 +91,16 @@ func ReadJSONDebugProblemWithCode(db *db.DB, code string) (*JSONDebugProblem, er
 		return nil, err
 	}
 
+	max_score, err := GetMaxScore(db, prob.Dpid, tid)
+	if err != nil {
+		return nil, err
+	}
+
 	return &JSONDebugProblem{
 		Problem:  jprob,
 		Language: prob.Language,
 		Result:   prob.Result,
-		Score:    prob.Score,
+		MaxScore: max_score,
 		Code:     codetext,
 		Judge: judge,
 	}, nil
