@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"flag"
@@ -65,6 +66,7 @@ func main() {
 
 	listen_addr := string(*listen_addr_flag)
 	if err := e.Start(listen_addr); err != nil {
+		e.Shutdown(context.Background())
 		log.Fatal(err)
 	}
 }
