@@ -29,6 +29,8 @@ func (g *Group) RankingsGet(c echo.Context) error {
 
 	var rows *sql.Rows
 	var err error
+    
+    log.Print("Resolving queue")
 
 	models.ResolveQueue(g.db)
 
@@ -53,18 +55,22 @@ func (g *Group) RankingsGet(c echo.Context) error {
 	log.Print("Converted input")
 
 	if groupid > 0 {
-		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS score FROM debug_submissions GROUP BY tid, dpid)
-		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.score) AS score FROM score_table
+		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS mxscore FROM debug_submissions GROUP BY tid, dpid),
+        ranking_table AS (SELECT tid, DENSE_RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
+		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.mxscore) AS score, ranking_table.rank FROM score_table
 		INNER JOIN teams ON teams.tid = score_table.tid
 		INNER JOIN groups ON groups.gid = teams.group
+        INNER JOIN ranking_table ON teams.tid = ranking_table.tid
 		WHERE teams.group = ?
 		GROUP BY score_table.tid ORDER BY score DESC
 		LIMIT ? OFFSET ?`, groupid, limit, (pageid-1)*limit)
 	} else {
-		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS score FROM debug_submissions GROUP BY tid, dpid)
-		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.score) AS score FROM score_table 
+		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS mxscore FROM debug_submissions GROUP BY tid, dpid),
+        ranking_table AS (SELECT tid, DENSE_RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
+		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.mxscore) AS score, ranking_table.rank FROM score_table
 		INNER JOIN teams ON teams.tid = score_table.tid
 		INNER JOIN groups ON groups.gid = teams.group
+        INNER JOIN ranking_table ON teams.tid = ranking_table.tid
 		GROUP BY score_table.tid ORDER BY score DESC
 		LIMIT ? OFFSET ?`, limit, (pageid-1)*limit)
 	}
@@ -74,16 +80,16 @@ func (g *Group) RankingsGet(c echo.Context) error {
 	defer rows.Close()
 
 	if err != nil {
+        log.Print(err)
 		return err
 	}
 
-	rank := (pageid-1)*limit + 1
 	for rows.Next() {
 		var email, teamname, name, groupname string
-		var gid, tid int
+		var gid, tid, rank int
 		var score float64
 
-		if err := rows.Scan(&email, &gid, &groupname, &tid, &teamname, &name, &score); err != nil {
+		if err := rows.Scan(&email, &gid, &groupname, &tid, &teamname, &name, &score, &rank); err != nil {
 			return err
 		}
 
@@ -98,7 +104,6 @@ func (g *Group) RankingsGet(c echo.Context) error {
 			Rank:      rank,
 			Score:     score,
 		})
-		rank++
 	}
 
 	log.Print("Iterated")
