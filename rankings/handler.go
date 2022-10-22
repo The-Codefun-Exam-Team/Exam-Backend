@@ -29,8 +29,8 @@ func (g *Group) RankingsGet(c echo.Context) error {
 
 	var rows *sql.Rows
 	var err error
-    
-    log.Print("Resolving queue")
+
+	log.Print("Resolving queue")
 
 	models.ResolveQueue(g.db)
 
@@ -80,7 +80,7 @@ func (g *Group) RankingsGet(c echo.Context) error {
 	defer rows.Close()
 
 	if err != nil {
-        log.Print(err)
+		log.Print(err)
 		return err
 	}
 

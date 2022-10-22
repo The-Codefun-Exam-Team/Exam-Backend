@@ -25,7 +25,6 @@ func main() {
 	listen_addr_flag := flag.String("p", "", "")
 	flag.Parse()
 	dotenv_path := string(*dotenv_path_flag)
-	
 
 	// Load dotenv file
 	err := godotenv.Load(dotenv_path)
