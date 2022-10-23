@@ -3,10 +3,6 @@ package main
 import (
 	"log"
 
-	"flag"
-
-	"github.com/joho/godotenv"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
@@ -19,17 +15,6 @@ import (
 )
 
 func main() {
-	// Get dotenv file path
-	dotenv_path_flag := flag.String("env", "", "")
-	flag.Parse()
-	dotenv_path := string(*dotenv_path_flag)
-
-	// Load dotenv file
-	err := godotenv.Load(dotenv_path)
-	if err != nil {
-		log.Print(err)
-	}
-
 	e := echo.New()
 
 	// e.Pre(middleware.HTTPSRedirect())
