@@ -1,8 +1,13 @@
 name: Build and Publish Docker image
 
 on:
-  push:	
-    branches: [ "main" ]
+  push:
+    branches: 
+      # Push with tag main
+      - "main"
+    tags:
+      # Push with tag latest and v*
+      - "v*"
   pull_request:	
     branches: [ "main" ]
 
