@@ -29,4 +29,4 @@ COPY --from=build /app/main ./main
 EXPOSE 80
 
 # Run the executable when the image is run
-CMD [ "./main" ]
+ENTRYPOINT [ "./main" ]

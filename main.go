@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -45,6 +46,7 @@ func main() {
 	if _, err := rankings.New(db, e.Group("/api/rankings")); err != nil {
 		log.Fatal(err)
 	}
+
 
 	if err := e.Start(":80"); err != nil {
 		log.Fatal(err)
