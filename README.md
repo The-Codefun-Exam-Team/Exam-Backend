@@ -2,4 +2,4 @@
 
 ## Getting started
 
-Simply type ```go run . -env=/path/to/env```
+Run the Docker image that is automatically built

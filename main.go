@@ -4,34 +4,18 @@ import (
 	"context"
 	"log"
 
-	"flag"
-
-	"github.com/joho/godotenv"
-
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
+	debugproblem "github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
+	debugsubmission "github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/rankings"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
 )
 
 func main() {
-	// Get dotenv file path
-	dotenv_path_flag := flag.String("env", "", "")
-	listen_addr_flag := flag.String("p", "", "")
-	flag.Parse()
-	dotenv_path := string(*dotenv_path_flag)
-
-	// Load dotenv file
-	err := godotenv.Load(dotenv_path)
-	if err != nil {
-		log.Print(err)
-	}
-
 	e := echo.New()
 
 	// e.Pre(middleware.HTTPSRedirect())
@@ -63,9 +47,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	listen_addr := string(*listen_addr_flag)
-	if err := e.Start(listen_addr); err != nil {
-		e.Shutdown(context.Background())
+
+	if err := e.Start(":80"); err != nil {
 		log.Fatal(err)
 	}
 }
