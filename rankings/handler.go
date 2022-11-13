@@ -56,7 +56,7 @@ func (g *Group) RankingsGet(c echo.Context) error {
 
 	if groupid > 0 {
 		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS mxscore FROM debug_submissions GROUP BY tid, dpid),
-        ranking_table AS (SELECT tid, DENSE_RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
+        ranking_table AS (SELECT tid, RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
 		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.mxscore) AS score, ranking_table.rank FROM score_table
 		INNER JOIN teams ON teams.tid = score_table.tid
 		INNER JOIN groups ON groups.gid = teams.group
@@ -66,7 +66,7 @@ func (g *Group) RankingsGet(c echo.Context) error {
 		LIMIT ? OFFSET ?`, groupid, limit, (pageid-1)*limit)
 	} else {
 		rows, err = g.db.Query(`WITH score_table AS (SELECT tid, dpid, MAX(score) AS mxscore FROM debug_submissions GROUP BY tid, dpid),
-        ranking_table AS (SELECT tid, DENSE_RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
+        ranking_table AS (SELECT tid, RANK() OVER (ORDER BY SUM(score_table.mxscore) DESC) AS rank FROM score_table GROUP BY tid)
 		SELECT teams.email, groups.gid, groups.groupname, teams.tid, teams.teamname, teams.name, SUM(score_table.mxscore) AS score, ranking_table.rank FROM score_table
 		INNER JOIN teams ON teams.tid = score_table.tid
 		INNER JOIN groups ON groups.gid = teams.group
