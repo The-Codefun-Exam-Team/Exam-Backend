@@ -8,7 +8,7 @@ type Config struct {
 
 }
 
-func LoadConfig() (config Config, err error) {
+func LoadConfig() (config *Config, err error) {
 	viper.AddConfigPath(".")
 
 	viper.SetConfigName("config")
@@ -21,10 +21,10 @@ func LoadConfig() (config Config, err error) {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Ignore errors when config file is not found
 		} else {
-			panic("Error while reading config file")
+			return nil, err
 		}
 	}
 
-	err = viper.Unmarshal(&config)
+	err = viper.Unmarshal(config)
 	return
 }
