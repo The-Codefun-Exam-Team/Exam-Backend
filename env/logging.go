@@ -1,4 +1,4 @@
-package logging
+package env
 
 import (
 	"go.uber.org/zap"
@@ -6,15 +6,15 @@ import (
 	"time"
 )
 
-func DisplayLevel(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
+func displayLevel(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString("[" + level.CapitalString() + "]")
 }
 
-func DisplayTime(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
+func displayTime(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("1999-12-31 23:59:59"))
 }
 
-func DevelopmentLogging() (*zap.SugaredLogger, error) {
+func developmentLogging() (*zap.SugaredLogger, error) {
 	cfg := zap.Config{
 		Level: zap.NewAtomicLevelAt(zap.DebugLevel),
 		Development: true,
@@ -25,8 +25,8 @@ func DevelopmentLogging() (*zap.SugaredLogger, error) {
 		OutputPaths: []string{"stdout"},
 	}
 
-	cfg.EncoderConfig.EncodeLevel = DisplayLevel
-	cfg.EncoderConfig.EncodeTime = DisplayTime
+	cfg.EncoderConfig.EncodeLevel = displayLevel
+	cfg.EncoderConfig.EncodeTime = displayTime
 
 	logger, err := cfg.Build()
 	if err != nil {
@@ -36,7 +36,7 @@ func DevelopmentLogging() (*zap.SugaredLogger, error) {
 	return logger.Sugar(), nil
 }
 
-func ProductionLogging() (*zap.SugaredLogger, error) {
+func productionLogging() (*zap.SugaredLogger, error) {
 	cfg := zap.Config{
 		Level: zap.NewAtomicLevelAt(zap.InfoLevel),
 		Development: false,
@@ -47,8 +47,8 @@ func ProductionLogging() (*zap.SugaredLogger, error) {
 		OutputPaths: []string{"stdout"},
 	}
 
-	cfg.EncoderConfig.EncodeLevel = DisplayLevel
-	cfg.EncoderConfig.EncodeTime = DisplayTime
+	cfg.EncoderConfig.EncodeLevel = displayLevel
+	cfg.EncoderConfig.EncodeTime = displayTime
 
 	logger, err := cfg.Build()
 	if err != nil {
@@ -60,8 +60,8 @@ func ProductionLogging() (*zap.SugaredLogger, error) {
 
 func InitializeLogging(mode string) (*zap.SugaredLogger, error) {
 	if mode == "DEVELOPMENT" {
-		return DevelopmentLogging()
+		return developmentLogging()
 	} else {
-		return ProductionLogging()
+		return productionLogging()
 	}
 }

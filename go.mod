@@ -3,6 +3,8 @@ module github.com/The-Codefun-Exam-Team/Exam-Backend.git
 go 1.19
 
 require (
+	github.com/go-sql-driver/mysql v1.7.0
+	github.com/jmoiron/sqlx v1.3.5
 	github.com/spf13/viper v1.14.0
 	go.uber.org/zap v1.21.0
 )

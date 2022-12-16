@@ -1,11 +1,14 @@
-package config
+package env
 
 import (
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-
+	DBUsername string `mapstructure:"DB_USERNAME"`
+	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBAddress string `mapstructure:"DB_ADDRESS"`
+	DBDatabaseName string `mapstructure:"DB_DATABASE_NAME"`
 }
 
 func LoadConfig() (config *Config, err error) {
