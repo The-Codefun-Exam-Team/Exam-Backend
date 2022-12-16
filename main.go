@@ -32,4 +32,6 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("[cannot connect to database] %v", err))
 	}
+
+	env.Log.Debug("Environment created")
 }

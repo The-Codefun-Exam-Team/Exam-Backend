@@ -15,7 +15,7 @@ func displayLevel(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 
 // Display the time according to ISO 8601
 func displayTime(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
-	enc.AppendString(t.Format("1999-12-31 23:59:59"))
+	enc.AppendString(t.Format("2006-01-02 15:04:05"))
 }
 
 // developmentLogging creates a logger with options for development purposes.
@@ -30,9 +30,15 @@ func developmentLogging() (*zap.SugaredLogger, error) {
 		OutputPaths:       []string{"stdout"},
 	}
 
-	// Set the display for logging level and time
-	cfg.EncoderConfig.EncodeLevel = displayLevel
-	cfg.EncoderConfig.EncodeTime = displayTime
+	// Set the EncoderConfig
+	cfg.EncoderConfig = zapcore.EncoderConfig{
+		MessageKey: "message",
+		LevelKey: "level",
+		TimeKey: "time",
+		LineEnding: "\n",
+		EncodeLevel: displayLevel,
+		EncodeTime: displayTime,
+	}
 
 	logger, err := cfg.Build()
 	if err != nil {
@@ -54,9 +60,15 @@ func productionLogging() (*zap.SugaredLogger, error) {
 		OutputPaths:       []string{"stdout"},
 	}
 
-	// Set the display for logging level and time
-	cfg.EncoderConfig.EncodeLevel = displayLevel
-	cfg.EncoderConfig.EncodeTime = displayTime
+	// Set the EncoderConfig
+	cfg.EncoderConfig = zapcore.EncoderConfig{
+		MessageKey: "message",
+		LevelKey: "level",
+		TimeKey: "time",
+		LineEnding: "\n",
+		EncodeLevel: displayLevel,
+		EncodeTime: displayTime,
+	}
 
 	logger, err := cfg.Build()
 	if err != nil {
