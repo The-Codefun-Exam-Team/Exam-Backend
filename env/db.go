@@ -10,7 +10,7 @@ func New(dsn string) (db *sqlx.DB, err error) {
 	return
 }
 
-func getDSN(config *Config) string {
+func GetDSN(config *Config) string {
 	cfg := mysql.Config{
 		User: config.DBUsername,
 		Passwd: config.DBPassword,

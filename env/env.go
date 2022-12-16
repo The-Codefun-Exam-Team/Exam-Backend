@@ -1,10 +1,12 @@
 package env
 
 import (
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
 
 type Env struct {
-	config *Config
-	log *zap.SugaredLogger
+	Config *Config
+	Log *zap.SugaredLogger
+	DB *sqlx.DB
 }

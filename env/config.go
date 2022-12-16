@@ -9,9 +9,10 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBAddress string `mapstructure:"DB_ADDRESS"`
 	DBDatabaseName string `mapstructure:"DB_DATABASE_NAME"`
+	LoggingMode string `mapstructure:"LOGGING_MODE"`
 }
 
-func LoadConfig() (config *Config, err error) {
+func LoadConfig() (*Config, error) {
 	viper.AddConfigPath(".")
 
 	viper.SetConfigName("config")
@@ -19,7 +20,7 @@ func LoadConfig() (config *Config, err error) {
 
 	viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
+	err := viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			// Ignore errors when config file is not found
@@ -28,6 +29,7 @@ func LoadConfig() (config *Config, err error) {
 		}
 	}
 
-	err = viper.Unmarshal(config)
-	return
+	var config Config
+	err = viper.Unmarshal(&config)
+	return &config, err
 }

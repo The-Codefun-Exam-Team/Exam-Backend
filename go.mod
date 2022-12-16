@@ -1,4 +1,4 @@
-module github.com/The-Codefun-Exam-Team/Exam-Backend.git
+module github.com/The-Codefun-Exam-Team/Exam-Backend
 
 go 1.19
 
