@@ -33,5 +33,5 @@ func main() {
 		panic(fmt.Sprintf("[cannot connect to database] %v", err))
 	}
 
-	env.Log.Debug("Environment created")
+	env.Log.Info("Environment created")
 }
