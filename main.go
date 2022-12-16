@@ -7,22 +7,27 @@ import (
 
 func main() {
 	var err error
+
+	// Creating the env
 	env := envlib.Env{}
 
+	// Load config
 	env.Config, err = envlib.LoadConfig()
 
 	if err != nil {
 		panic(fmt.Sprintf("[cannot load config] %v", err))
 	}
 
-	env.Log, err = envlib.InitializeLogging(env.Config.LoggingMode)
+	// Initialize logger
+	env.Log, err = envlib.InitializeLogger(env.Config.LoggingMode)
 
 	if err != nil {
 		panic(fmt.Sprintf("[cannot initialize logger] %v", err))
 	}
 
+	// Connect to database
 	db_dsn := envlib.GetDSN(env.Config)
-	env.DB, err = envlib.New(db_dsn)
+	env.DB, err = envlib.NewDB(db_dsn)
 
 	if err != nil {
 		panic(fmt.Sprintf("[cannot connect to database] %v", err))
