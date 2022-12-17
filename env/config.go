@@ -11,6 +11,7 @@ type Config struct {
 	DBAddress      string `mapstructure:"DB_ADDRESS"`
 	DBDatabaseName string `mapstructure:"DB_DATABASE_NAME"`
 	LoggingMode    string `mapstructure:"LOGGING_MODE"`
+	ServerPort     string `mapstructure:"SERVER_PORT"`
 }
 
 // LoadConfig loads config file from current working directorys.

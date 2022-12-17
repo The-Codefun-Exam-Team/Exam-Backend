@@ -16,11 +16,7 @@ func NewModule(gr *echo.Group, env *envlib.Env) *Module {
 		group: gr,
 	}
 
+	module.group.GET("/:code/", module.GetSingleProblem)
+
 	return module
-}
-
-func (m *Module) GetSingleProblem(c echo.Context) error {
-	// TODO: Verify user
-
-	return nil
 }
