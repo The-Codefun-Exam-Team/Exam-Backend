@@ -1,18 +1,18 @@
 package debugproblem
 
 import (
-	"github.com/labstack/echo/v4"
 	envlib "github.com/The-Codefun-Exam-Team/Exam-Backend/env"
+	"github.com/labstack/echo/v4"
 )
 
 type Module struct {
-	env *envlib.Env
+	env   *envlib.Env
 	group *echo.Group
 }
 
-func NewModule(gr *echo.Group, env *envlib.Env) (*Module) {
+func NewModule(gr *echo.Group, env *envlib.Env) *Module {
 	module := &Module{
-		env: env,
+		env:   env,
 		group: gr,
 	}
 

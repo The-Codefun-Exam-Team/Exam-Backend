@@ -32,12 +32,12 @@ func developmentLogging() (*zap.SugaredLogger, error) {
 
 	// Set the EncoderConfig
 	cfg.EncoderConfig = zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey: "level",
-		TimeKey: "time",
-		LineEnding: "\n",
+		MessageKey:  "message",
+		LevelKey:    "level",
+		TimeKey:     "time",
+		LineEnding:  "\n",
 		EncodeLevel: displayLevel,
-		EncodeTime: displayTime,
+		EncodeTime:  displayTime,
 	}
 
 	logger, err := cfg.Build()
@@ -62,12 +62,12 @@ func productionLogging() (*zap.SugaredLogger, error) {
 
 	// Set the EncoderConfig
 	cfg.EncoderConfig = zapcore.EncoderConfig{
-		MessageKey: "message",
-		LevelKey: "level",
-		TimeKey: "time",
-		LineEnding: "\n",
+		MessageKey:  "message",
+		LevelKey:    "level",
+		TimeKey:     "time",
+		LineEnding:  "\n",
 		EncodeLevel: displayLevel,
-		EncodeTime: displayTime,
+		EncodeTime:  displayTime,
 	}
 
 	logger, err := cfg.Build()
