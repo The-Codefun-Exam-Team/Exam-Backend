@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// Parts of the query for retrieving all problems from DB.
 var getAllProblemQueryPart1 = `
 WITH score_table AS (
 	SELECT 
@@ -39,15 +40,18 @@ var getAllProblemQueryFilterActive = `
 	AND debug_problems.status = "Active"
 `
 
+// Separate queries for admins and non-admins
 var getAllProblemQuery = getAllProblemQueryPart1 + getAllProblemQueryFilterActive + getAllProblemQueryPart2
 var getAllProblemQueryAdmin = getAllProblemQueryPart1 + getAllProblemQueryPart2
 
-func (m *Module) getAllProblem(c echo.Context) (err error) {
+func (m *Module) GetAllProblem(c echo.Context) (err error) {
+	// Verify the user first
 	user, err := utility.Verify(c, m.env)
 	if user == nil {
 		return err
 	}
 
+	// Get the status of the user
 	var query string
 	if user.Status == "Admin" {
 		m.env.Log.Info("Getting all problems (Admin)")
@@ -57,6 +61,7 @@ func (m *Module) getAllProblem(c echo.Context) (err error) {
 		query = getAllProblemQuery
 	}
 
+	// Query all problems from DB
 	var listOfProblems []models.ShortenedProblem
 
 	m.env.Log.Debug("Querying DB for all problems")
@@ -67,6 +72,7 @@ func (m *Module) getAllProblem(c echo.Context) (err error) {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
+	// Convert each scores from NULL to 0
 	m.env.Log.Debug("Converting score")
 	for idx, p := range listOfProblems {
 		if !p.RawBestScore.Valid {
@@ -76,6 +82,9 @@ func (m *Module) getAllProblem(c echo.Context) (err error) {
 		}
 	}
 
+	// Return all problems
 	m.env.Log.Info("Found all problems")
-	return c.JSON(http.StatusOK, listOfProblems)
+	return c.JSON(http.StatusOK, models.Response{
+		Data: listOfProblems,
+	})
 }

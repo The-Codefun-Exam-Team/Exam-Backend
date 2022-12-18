@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Verify check if the user is valid, and if it is, return User.
 func Verify(c echo.Context, env *envlib.Env) (*models.User, error) {
 	env.Log.Info("Verifying")
 	verify, err := VerifyRequest(c, env)
@@ -27,6 +28,7 @@ func Verify(c echo.Context, env *envlib.Env) (*models.User, error) {
 	return &verify.User, nil
 }
 
+// VerifyRequest construct, add Authorization and process the http request for verification.
 func VerifyRequest(c echo.Context, env *envlib.Env) (*models.Verify, error) {
 	env.Log.Debug("Constructing verify request")
 	request, err := ConstructRequest(http.MethodPost, "https://codefun.vn/api/verify")

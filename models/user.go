@@ -1,5 +1,6 @@
 package models
 
+// User is a struct containing information about an user.
 type User struct {
 	ID          int     `json:"id"`
 	Username    string  `json:"username"`

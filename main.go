@@ -38,8 +38,10 @@ func main() {
 
 	env.Log.Info("Environment created")
 
+	// Create the echo.Echo object
 	e := echo.New()
 
+	// Attach the route to /api/problems
 	_ = debugproblem.NewModule(e.Group("/api/problems"), &env)
 
 	if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {

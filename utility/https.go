@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// ConstructRequest creates a request and add certain headers.
 func ConstructRequest(method string, url string) (*http.Request, error) {
 	request, err := http.NewRequest(method, url, nil)
 	if err != nil {
@@ -13,10 +14,12 @@ func ConstructRequest(method string, url string) (*http.Request, error) {
 	}
 
 	request.Header.Add("Accept", "application/json")
+	request.Header.Add("User-Agent", "Debug_Codefun/2.0")
 
 	return request, nil
 }
 
+// ProcessRequest uses a http client to process the request, and return the response as []byte.
 func ProcessRequest(request *http.Request) ([]byte, error) {
 	rawResponse, err := http.DefaultClient.Do(request)
 	if err != nil {

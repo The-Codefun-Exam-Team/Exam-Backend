@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// Query for retrieving a single problem from DB.
 var getSingleProblemQuery = `
 SELECT
 
@@ -29,19 +30,24 @@ INNER JOIN debug_submissions ON debug_submissions.dpid = debug_problems.dpid
 WHERE debug_problems.code = ?
 `
 
-func (m *Module) getSingleProblem(c echo.Context) (err error) {
+// GetSingleProblem returns a DebugProblem
+func (m *Module) GetSingleProblem(c echo.Context) (err error) {
+	// Verify the user first
 	user, err := utility.Verify(c, m.env)
 	if user == nil {
 		return err
 	}
 
+	// Getting the problem code
 	code := c.Param("code")
 	m.env.Log.Infof("Getting problem (%v)", code)
 
+	// Query the DB
 	m.env.Log.Debug("Querying DB for problem")
 	var p models.DebugProblem
 	err = m.env.DB.Get(&p, getSingleProblemQuery, user.ID, code)
 
+	// Convert the score from NULL to 0
 	m.env.Log.Debug("Converting score")
 	if !p.RawBestScore.Valid {
 		p.BestScore = 0.0
@@ -49,16 +55,22 @@ func (m *Module) getSingleProblem(c echo.Context) (err error) {
 		p.BestScore = p.RawBestScore.Float64
 	}
 
+	// Log errors
 	if err != nil {
 		if err == sql.ErrNoRows {
+			// If no row was found
 			m.env.Log.Infof("Getting problem: (%v) not found", code)
 			return c.NoContent(http.StatusNotFound)
 		} else {
+			// Another error
 			m.env.Log.Errorf("Getting problem: Error encountered: %v", err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
 	}
 
+	// Return the problem
 	m.env.Log.Infof("Found problem (%v)", code)
-	return c.JSON(http.StatusOK, p)
+	return c.JSON(http.StatusOK, models.Response{
+		Data: p,
+	})
 }
