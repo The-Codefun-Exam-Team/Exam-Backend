@@ -15,13 +15,17 @@ func Verify(c echo.Context, env *envlib.Env) (*models.User, error) {
 	verify, err := VerifyRequest(c, env)
 	if err != nil {
 		env.Log.Errorf("Verify: Error encountered: %v", err)
-		c.NoContent(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 		return nil, err
 	}
 
 	if verify.Error != "" {
 		env.Log.Info("Verify: Forbidden")
-		return nil, c.NoContent(http.StatusForbidden)
+		return nil, c.JSON(http.StatusForbidden, models.Response{
+			Error: "Invalid token",
+		})
 	}
 
 	env.Log.Infof("Verify: User %v", verify.User.ID)

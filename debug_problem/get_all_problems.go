@@ -69,7 +69,9 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 
 	if err != nil {
 		m.env.Log.Error("Getting all problems: Error encountered: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	// Convert each scores from NULL to 0

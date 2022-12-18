@@ -60,11 +60,15 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 		if err == sql.ErrNoRows {
 			// If no row was found
 			m.env.Log.Infof("Getting problem: (%v) not found", code)
-			return c.NoContent(http.StatusNotFound)
+			return c.JSON(http.StatusNotFound, models.Response{
+				Error: "No problem was found",
+			})
 		} else {
 			// Another error
 			m.env.Log.Errorf("Getting problem: Error encountered: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
+			return c.JSON(http.StatusInternalServerError, models.Response{
+				Error: "An error has occured",
+			})
 		}
 	}
 
