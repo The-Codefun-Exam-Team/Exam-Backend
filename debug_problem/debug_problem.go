@@ -1,7 +1,7 @@
 package debugproblem
 
 import (
-	envlib "github.com/The-Codefun-Exam-Team/Exam-Backend/env"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
 	"github.com/labstack/echo/v4"
 )
 

@@ -1,4 +1,4 @@
-package env
+package envlib
 
 import (
 	"github.com/jmoiron/sqlx"

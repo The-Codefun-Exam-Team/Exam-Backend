@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/utility"
 	"github.com/labstack/echo/v4"
 )
 
@@ -38,12 +39,17 @@ WHERE debug_problems.code = ?
 `
 
 func (m *Module) GetSingleProblem(c echo.Context) (err error) {
-	// TODO: Verify user
+	user, err := utility.Verify(c, m.env)
+	if user == nil {
+		return err
+	}
 
 	code := c.Param("code")
+	m.env.Log.Infof("Getting problem (%v)", code)
 
+	m.env.Log.Debug("Querying DB for problem")
 	var p SingleProblem
-	err = m.env.DB.QueryRowx(getSingleProblemQuery, 6755, code).StructScan(&p)
+	err = m.env.DB.QueryRowx(getSingleProblemQuery, user.ID, code).StructScan(&p)
 
 	if !p.RawBestScore.Valid {
 		p.BestScore = 0.0
@@ -53,11 +59,14 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
+			m.env.Log.Infof("Getting problem: (%v) not found", code)
 			return c.NoContent(http.StatusNotFound)
 		} else {
+			m.env.Log.Error("Getting problem: Error encountered")
 			return c.NoContent(http.StatusInternalServerError)
 		}
 	}
 
+	m.env.Log.Debugf("Getting problem: Found (%v)", code)
 	return c.JSON(http.StatusOK, p)
 }
