@@ -10,10 +10,10 @@ import (
 )
 
 func Verify(c echo.Context, env *envlib.Env) (*models.User, error) {
-	env.Log.Debug("Verifying")
+	env.Log.Info("Verifying")
 	verify, err := VerifyRequest(c, env)
 	if err != nil {
-		env.Log.Error("Verify: Error encountered")
+		env.Log.Errorf("Verify: Error encountered: %v", err)
 		c.NoContent(http.StatusInternalServerError)
 		return nil, err
 	}

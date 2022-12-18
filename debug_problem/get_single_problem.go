@@ -9,20 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type SingleProblem struct {
-	BestScore      float64               `json:"best_score"`
-	Codetext       string                `json:"code" db:"codetext"`
-	Judge          models.Judge          `json:"judge" db:"error"`
-	Language       string                `json:"language" db:"language"`
-	Result         string                `json:"result" db:"result"`
-	CodefunProblem models.CodefunProblem `json:"problem" db:""`
-	RawBestScore   sql.NullFloat64       `db:"best_score"`
-}
-
 var getSingleProblemQuery = `
 SELECT
 
 MAX(debug_submissions.score) AS best_score,
+debug_problems.code AS dpcode,
 debug_problems.language,
 debug_problems.result,
 subs_code.code AS codetext,
@@ -38,7 +29,7 @@ INNER JOIN debug_submissions ON debug_submissions.dpid = debug_problems.dpid
 WHERE debug_problems.code = ?
 `
 
-func (m *Module) GetSingleProblem(c echo.Context) (err error) {
+func (m *Module) getSingleProblem(c echo.Context) (err error) {
 	user, err := utility.Verify(c, m.env)
 	if user == nil {
 		return err
@@ -48,9 +39,10 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 	m.env.Log.Infof("Getting problem (%v)", code)
 
 	m.env.Log.Debug("Querying DB for problem")
-	var p SingleProblem
-	err = m.env.DB.QueryRowx(getSingleProblemQuery, user.ID, code).StructScan(&p)
+	var p models.DebugProblem
+	err = m.env.DB.Get(&p, getSingleProblemQuery, user.ID, code)
 
+	m.env.Log.Debug("Converting score")
 	if !p.RawBestScore.Valid {
 		p.BestScore = 0.0
 	} else {
@@ -62,11 +54,11 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 			m.env.Log.Infof("Getting problem: (%v) not found", code)
 			return c.NoContent(http.StatusNotFound)
 		} else {
-			m.env.Log.Error("Getting problem: Error encountered")
+			m.env.Log.Errorf("Getting problem: Error encountered: %v", err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
 	}
 
-	m.env.Log.Debugf("Getting problem: Found (%v)", code)
+	m.env.Log.Infof("Found problem (%v)", code)
 	return c.JSON(http.StatusOK, p)
 }

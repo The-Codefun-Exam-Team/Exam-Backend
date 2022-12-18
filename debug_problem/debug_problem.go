@@ -16,7 +16,8 @@ func NewModule(gr *echo.Group, env *envlib.Env) *Module {
 		group: gr,
 	}
 
-	module.group.GET("/:code/", module.GetSingleProblem)
+	module.group.GET("/:code/", module.getSingleProblem)
+	module.group.GET("/", module.getAllProblem)
 
 	return module
 }
