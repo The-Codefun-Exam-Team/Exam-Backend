@@ -25,6 +25,9 @@ WITH score_table AS (
 SELECT
 
 debug_problems.code AS dpcode,
+debug_problems.name AS dpname,
+debug_problems.language,
+debug_problems.result,
 MAX(score_table.max_score) AS best_score
 
 FROM debug_problems

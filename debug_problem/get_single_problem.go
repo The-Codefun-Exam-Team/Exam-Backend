@@ -15,6 +15,7 @@ SELECT
 
 MAX(debug_submissions.score) AS best_score,
 debug_problems.code AS dpcode,
+debug_problems.name AS dpname,
 debug_problems.language,
 debug_problems.result,
 subs_code.code AS codetext,

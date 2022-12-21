@@ -28,8 +28,8 @@ func ProcessRequest(request *http.Request) ([]byte, error) {
 
 	defer rawResponse.Body.Close()
 
-	if rawResponse.StatusCode != 200 {
-		return nil, errors.New("non-200 status code")
+	if rawResponse.StatusCode != 200 && rawResponse.StatusCode != 403 {
+		return nil, errors.New("bad status code")
 	}
 
 	response, err := io.ReadAll(rawResponse.Body)
