@@ -20,4 +20,6 @@ func (m *Module) GetSingleSubmission(c echo.Context) (err error) {
 	// Query the DB
 
 	// TODO(unknown): Get the submission
+
+	return
 }
