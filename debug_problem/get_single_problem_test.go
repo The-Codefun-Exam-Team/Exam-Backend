@@ -1,11 +1,12 @@
 package debugproblem
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 	"strings"
+	"testing"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
 
@@ -24,6 +25,50 @@ func (client *MockClient) Do(r *http.Request) (*http.Response, error)  {
 }
 
 func TestGetSingleProblem(t *testing.T) {
+	testcases := []struct{
+		code string
+		token string
+		errorcode int
+		rows *sqlmock.Rows
+	}{
+		{
+			code: "D001",
+			token: "good-token",
+			errorcode: http.StatusOK,
+			rows: sqlmock.NewRows([]string{
+					"best_score", "dpcode", "dpname", "language", "result", "codetext", "error",
+					"pid", "sid", "code", "name", "type", "scoretype", "cid", "status", "pgroup",
+					"statement", "timelimit", "score", "usechecker", "checkercode", "solved", "total",
+				}).AddRow(
+				0, "D001", "D001", "C++", "SS", "<redacted>",
+				"2/2////AC|0.001|Accepted||WA|0.001|Wrong Answer", 460, 1, "P148", "P148",
+				"", "oi", nil, "Active", "Practice", "BKLR 2019", 1, 100, 0, "", 0, 0),
+		},
+		{
+			code: "D001",
+			token: "bad-token",
+			errorcode: http.StatusForbidden,
+			rows: sqlmock.NewRows([]string{
+					"best_score", "dpcode", "dpname", "language", "result", "codetext", "error",
+					"pid", "sid", "code", "name", "type", "scoretype", "cid", "status", "pgroup",
+					"statement", "timelimit", "score", "usechecker", "checkercode", "solved", "total",
+				}).AddRow(
+				0, "D001", "D001", "C++", "SS", "<redacted>",
+				"2/2////AC|0.001|Accepted||WA|0.001|Wrong Answer", 460, 1, "P148", "P148",
+				"", "oi", nil, "Active", "Practice", "BKLR 2019", 1, 100, 0, "", 0, 0),
+		},
+		{
+			code: "non-existent-problem",
+			token: "good-token",
+			errorcode: http.StatusNotFound,
+			rows: sqlmock.NewRows([]string{
+					"best_score", "dpcode", "dpname", "language", "result", "codetext", "error",
+					"pid", "sid", "code", "name", "type", "scoretype", "cid", "status", "pgroup",
+					"statement", "timelimit", "score", "usechecker", "checkercode", "solved", "total",
+				}),
+		},
+	}
+
 	// Setup
 	env := envlib.Env{}
 	var err error
@@ -45,48 +90,45 @@ func TestGetSingleProblem(t *testing.T) {
 				StatusCode: 200,
 				Body: io.NopCloser(strings.NewReader(`{
 					"data": {
-					  "id": 1
+					  "id": 1234
 					}
 				  }`)),
 			}, nil
 		},
 	}
 
-	t.Run("D001", func(t *testing.T){
-		request := httptest.NewRequest(http.MethodGet, "/", nil)
-		request.Header.Set("Authorization", "Bearer good-token")
+	for _, test := range testcases {
+		t.Run(fmt.Sprintf("%s %s", test.code, test.token), func(t *testing.T) {
+			request := httptest.NewRequest(http.MethodGet, "/", nil)
+			request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", test.token))
 
-		recorder := httptest.NewRecorder()
-		context := echo.New().NewContext(request, recorder)
+			recorder := httptest.NewRecorder()
+			context := echo.New().NewContext(request, recorder)
 
-		context.SetParamNames("code")
-		context.SetParamValues("D001")
+			context.SetParamNames("code")
+			context.SetParamValues(test.code)
 
-		db, mock, err := sqlmock.New()
-		if err != nil {
-			t.Fatal("cannot create a stub database")
-		}
-		env.DB = sqlx.NewDb(db, "sqlmock")
+			db, mock, err := sqlmock.New()
+			if err != nil {
+				t.Fatal("cannot create a stub database")
+			}
+			env.DB = sqlx.NewDb(db, "sqlmock")
+			
+			m := Module{
+				env: &env,
+			}
 
-		m := Module{
-			env: &env,
-		}
+			if test.token == "good-token" {
+				mock.ExpectQuery("SELECT").
+					WithArgs(1234, test.code). // 1234 is the ID for the mock user
+					WillReturnRows(test.rows)
+			}
 
-		rows := sqlmock.NewRows([]string{
-			"best_score", "dpcode", "dpname", "language", "result", "codetext", "error",
-			"pid", "sid", "code", "name", "type", "scoretype", "cid", "status", "pgroup",
-			"statement", "timelimit", "score", "usechecker", "checkercode", "solved", "total",
-		}).AddRow(
-		0, "D001", "D001", "C++", "SS", "<redacted>",
-		"2/2////AC|0.001|Accepted||WA|0.001|Wrong Answer", 460, 1, "P148", "P148",
-		"", "oi", nil, "Active", "Practice", "BKLR 2019", 1, 100, 0, "", 0, 0)
-
-		mock.ExpectQuery("SELECT").
-			WithArgs(1, "D001").
-			WillReturnRows(rows)
-
-		if assert.NoError(t, m.GetSingleProblem(context)) {
-			assert.Equal(t, http.StatusOK, recorder.Code)
-		}
-	})
+			if assert.NoError(t, m.GetSingleProblem(context), "Error encountered") {
+				assert.Equal(t, test.errorcode, recorder.Code, "Wrong status code")
+			}
+	
+			assert.NoError(t, mock.ExpectationsWereMet(), "SQL query not matching")
+		})
+	}
 }
