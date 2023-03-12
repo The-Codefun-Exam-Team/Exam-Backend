@@ -20,7 +20,6 @@ func GetDSN(config *Config) string {
 		Addr:                 config.DBAddress, // Format: <host>:<port>
 		DBName:               config.DBDatabaseName,
 		AllowNativePasswords: true,
-		ParseTime:            true, // Parse time from database to time.Time instead of []byte
 	}
 
 	dsn := cfg.FormatDSN()

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
 	"github.com/labstack/echo/v4"
@@ -43,6 +44,9 @@ func main() {
 
 	// Attach the route to /api/problems
 	_ = debugproblem.NewModule(e.Group("/api/problems"), &env)
+
+	// Attach the route to /api/submissions
+	_ = debugsubmission.NewModule(e.Group("/api/submissions"), &env)
 
 	if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {
 		env.Log.Fatalf("Cannot start server: %v", err)

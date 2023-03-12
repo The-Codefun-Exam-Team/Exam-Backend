@@ -1,9 +1,6 @@
 package models
 
-import (
-	"time"
-)
-
+// ShortenedSubmission contains brief information about a Debug submission.
 type ShortenedSubmission struct {
 	Drid       int       `json:"-" db:"drid"`
 	Dpid       int       `json:"-" db:"dpid"`
@@ -11,7 +8,7 @@ type ShortenedSubmission struct {
 	Rid        int       `json:"rid" db:"rid"`
 	Tid        int       `json:"-" db:"tid"`
 	Language   string    `json:"-" db:"language"`
-	SubmitTime time.Time `json:"-" db:"submittime"`
+	SubmitTime int `json:"-" db:"submittime"`
 	Result     string    `json:"result" db:"result"`
 	Score      float64   `json:"score" db:"score"`
 }
@@ -19,5 +16,5 @@ type ShortenedSubmission struct {
 type DebugSubmission struct {
 	ShortenedSubmission
 	Difference int    `json:"-" db:"diff"`
-	Code       string `json:"-" db:"codetext"`
+	Code       string `json:"-" db:"code"`
 }
