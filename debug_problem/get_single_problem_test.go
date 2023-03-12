@@ -30,6 +30,7 @@ func TestGetSingleProblem(t *testing.T) {
 		token string
 		errorcode int
 		rows *sqlmock.Rows
+		expected string
 	}{
 		{
 			code: "D001",
@@ -43,6 +44,7 @@ func TestGetSingleProblem(t *testing.T) {
 				0, "D001", "D001", "C++", "SS", "<redacted>",
 				"2/2////AC|0.001|Accepted||WA|0.001|Wrong Answer", 460, 1, "P148", "P148",
 				"", "oi", nil, "Active", "Practice", "BKLR 2019", 1, 100, 0, "", 0, 0),
+			expected: `{"data":{"code":"D001","name":"D001","language":"C++","result":"SS","best_score":0,"codetext":"\u003credacted\u003e","judge":{"correct":2,"total":2,"tests":[{"verdict":"AC","runningTime":0.001,"message":"Accepted"},{"verdict":"WA","runningTime":0.001,"message":"Wrong Answer"}]},"problem":{"pid":460,"code":"P148","name":"P148"}}}` + "\n",
 		},
 		{
 			code: "D001",
@@ -56,6 +58,7 @@ func TestGetSingleProblem(t *testing.T) {
 				0, "D001", "D001", "C++", "SS", "<redacted>",
 				"2/2////AC|0.001|Accepted||WA|0.001|Wrong Answer", 460, 1, "P148", "P148",
 				"", "oi", nil, "Active", "Practice", "BKLR 2019", 1, 100, 0, "", 0, 0),
+			expected: "",
 		},
 		{
 			code: "non-existent-problem",
@@ -66,6 +69,7 @@ func TestGetSingleProblem(t *testing.T) {
 					"pid", "sid", "code", "name", "type", "scoretype", "cid", "status", "pgroup",
 					"statement", "timelimit", "score", "usechecker", "checkercode", "solved", "total",
 				}),
+			expected: "",
 		},
 	}
 
@@ -126,6 +130,9 @@ func TestGetSingleProblem(t *testing.T) {
 
 			if assert.NoError(t, m.GetSingleProblem(context), "Error encountered") {
 				assert.Equal(t, test.errorcode, recorder.Code, "Wrong status code")
+				if test.errorcode == http.StatusOK {
+					assert.Equal(t, test.expected, recorder.Body.String())
+				}
 			}
 	
 			assert.NoError(t, mock.ExpectationsWereMet(), "SQL query not matching")
