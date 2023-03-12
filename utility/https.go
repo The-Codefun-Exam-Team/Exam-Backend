@@ -1,6 +1,8 @@
 package utility
 
 import (
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
+	
 	"errors"
 	"io"
 	"net/http"
@@ -20,8 +22,8 @@ func ConstructRequest(method string, url string) (*http.Request, error) {
 }
 
 // ProcessRequest uses a http client to process the request, and return the response as []byte.
-func ProcessRequest(request *http.Request) ([]byte, error) {
-	rawResponse, err := http.DefaultClient.Do(request)
+func ProcessRequest(client models.Client, request *http.Request) ([]byte, error) {
+	rawResponse, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}

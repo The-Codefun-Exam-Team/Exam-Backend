@@ -44,7 +44,7 @@ func VerifyRequest(c echo.Context, env *envlib.Env) (*models.Verify, error) {
 	request.Header.Add("Authorization", token)
 
 	env.Log.Debug("Processing verify request")
-	response, err := ProcessRequest(request)
+	response, err := ProcessRequest(env.Client, request)
 	if err != nil {
 		return nil, err
 	}

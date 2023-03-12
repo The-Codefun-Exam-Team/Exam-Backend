@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
 
@@ -36,6 +38,9 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("[cannot connect to database] %v", err))
 	}
+
+	// Create HTTP client
+	env.Client = http.DefaultClient
 
 	env.Log.Info("Environment created")
 
