@@ -78,6 +78,36 @@ func productionLogging() (*zap.SugaredLogger, error) {
 	return logger.Sugar(), nil
 }
 
+// testingLogging creates a logger with options for testing.
+func testingLogging() (*zap.SugaredLogger, error) {
+	cfg := zap.Config{
+		Level:             zap.NewAtomicLevelAt(zap.FatalLevel), // Starts logging at info level
+		Development:       false,                               // Turns DPanic into Error
+		DisableCaller:     false,
+		DisableStacktrace: false,
+		Sampling:          nil,
+		Encoding:          "console",
+		OutputPaths:       []string{},
+	}
+
+	// Set the EncoderConfig
+	cfg.EncoderConfig = zapcore.EncoderConfig{
+		MessageKey:  "message",
+		LevelKey:    "level",
+		TimeKey:     "time",
+		LineEnding:  "\n",
+		EncodeLevel: displayLevel,
+		EncodeTime:  displayTime,
+	}
+
+	logger, err := cfg.Build()
+	if err != nil {
+		return nil, err
+	}
+
+	return logger.Sugar(), nil
+}
+
 // InitializeLogger takes in a mode and return an appropriate logger
 // The modes allowed are "DEVELOPMENT" and "PRODUCTION"
 func InitializeLogger(mode string) (*zap.SugaredLogger, error) {
@@ -85,6 +115,8 @@ func InitializeLogger(mode string) (*zap.SugaredLogger, error) {
 		return developmentLogging()
 	} else if mode == "PRODUCTION" {
 		return productionLogging()
+	} else if mode == "TESTING" {
+		return testingLogging()
 	} else {
 		return nil, errors.New("mode not found")
 	}
