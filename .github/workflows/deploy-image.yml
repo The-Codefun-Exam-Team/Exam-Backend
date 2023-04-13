@@ -1,0 +1,18 @@
+name: Deploy published Docker image
+
+on:
+  registry_package:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect and pull
+        uses: appleboy/ssh-action@master
+        with:
+          username: debug-cd
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          script: debug-pull
