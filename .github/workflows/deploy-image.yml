@@ -55,7 +55,7 @@ jobs:
       - name: Connect and pull
         uses: appleboy/ssh-action@master
         with:
-          username: debug-cd
+          username: root
           host: ${{ secrets.SSH_HOST }}
           key: ${{ secrets.SSH_KEY }}
           script: ~/update.sh
