@@ -72,7 +72,7 @@ jobs:
       - name: Connect and pull
         uses: appleboy/ssh-action@master
         with:
-          username: root
+          username: ${{ secrets.SSH_USER }}
           host: ${{ secrets.SSH_HOST }}
           key: ${{ secrets.SSH_KEY }}
           script: ~/update.sh
