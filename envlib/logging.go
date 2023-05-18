@@ -82,7 +82,7 @@ func productionLogging() (*zap.SugaredLogger, error) {
 func testingLogging() (*zap.SugaredLogger, error) {
 	cfg := zap.Config{
 		Level:             zap.NewAtomicLevelAt(zap.FatalLevel), // Starts logging at info level
-		Development:       false,                               // Turns DPanic into Error
+		Development:       false,                                // Turns DPanic into Error
 		DisableCaller:     false,
 		DisableStacktrace: false,
 		Sampling:          nil,

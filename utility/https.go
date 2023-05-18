@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+func AddHeaders(request *http.Request) {
+	request.Header.Add("Accept", "application/json")
+	request.Header.Add("User-Agent", "Debug_Codefun/2.0")
+}
+
 // ConstructRequest creates a request and add certain headers.
 func ConstructRequest(method string, url string) (*http.Request, error) {
 	request, err := http.NewRequest(method, url, nil)
@@ -15,8 +20,7 @@ func ConstructRequest(method string, url string) (*http.Request, error) {
 		return nil, err
 	}
 
-	request.Header.Add("Accept", "application/json")
-	request.Header.Add("User-Agent", "Debug_Codefun/2.0")
+	AddHeaders(request)
 
 	return request, nil
 }

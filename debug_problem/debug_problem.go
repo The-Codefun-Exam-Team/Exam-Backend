@@ -7,13 +7,13 @@ import (
 
 // Module contains an Env struct and a Group for routing
 type Module struct {
-	env   *envlib.Env
+	env *envlib.Env
 }
 
 // NewModule creates a new module with URL paths
 func NewModule(gr *echo.Group, env *envlib.Env) *Module {
 	module := &Module{
-		env:   env,
+		env: env,
 	}
 
 	gr.GET("/:code/", module.GetSingleProblem)
