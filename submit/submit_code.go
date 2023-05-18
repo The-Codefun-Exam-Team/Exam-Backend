@@ -11,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var submitURL = "https://codefun.vn/api/submit/"
+var submitURL = "https://codefun.vn/api/submit"
 
 func (m *Module) SubmitCode(c echo.Context) (err error) {
 	user, err := utility.Verify(c, m.env)
@@ -45,7 +45,7 @@ func (m *Module) SubmitCode(c echo.Context) (err error) {
 
 	form.Add("problem", metadata.PCode)
 	form.Add("code", c.FormValue("codetext"))
-	form.Add("language", metadata.Language) // Currently hard-coding
+	form.Add("language", metadata.Language)
 
 	// Construct the request
 	request, err := http.NewRequest(
@@ -58,7 +58,7 @@ func (m *Module) SubmitCode(c echo.Context) (err error) {
 	// Add Content-Type header
 
 	// Send the request
-	m.env.Log.Infof("Sending request to codefun.vn")
+	m.env.Log.Debug("Sending request to codefun.vn")
 	response, err := m.env.Client.Do(request)
 	if err != nil {
 		m.env.Log.Errorf("Error sending request: %v", err)
@@ -69,9 +69,15 @@ func (m *Module) SubmitCode(c echo.Context) (err error) {
 
 	defer response.Body.Close()
 
-	// TODO(unknown): Check return code
+	m.env.Log.Debugf("Status code: %v", response.StatusCode)
+	if !(response.StatusCode >= 200 && response.StatusCode < 300) {
+		m.env.Log.Errorf("Non-2xx status code: %v", err)
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
+	}
 
-	m.env.Log.Infof("Extracting from response")
+	m.env.Log.Debug("Extracting from response")
 	rid, err := ExtractResponse(response)
 	if err != nil {
 		m.env.Log.Errorf("Error extracting from response: %v", err)
@@ -94,7 +100,7 @@ func (m *Module) SubmitCode(c echo.Context) (err error) {
 		Code:       c.FormValue("codetext"),
 	}
 
-	m.env.Log.Infof("Adding submission to DB")
+	m.env.Log.Debug("Adding submission to DB")
 
 	id, err := submission.Write(m.env.DB)
 	if err != nil {

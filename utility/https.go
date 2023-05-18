@@ -9,6 +9,7 @@ import (
 )
 
 func AddHeaders(request *http.Request) {
+	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Add("Accept", "application/json")
 	request.Header.Add("User-Agent", "Debug_Codefun/2.0")
 }
