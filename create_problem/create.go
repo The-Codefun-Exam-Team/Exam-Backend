@@ -16,6 +16,7 @@ func NewModule(gr *echo.Group, env *envlib.Env) *Module {
 		env: env,
 	}
 
+	gr.GET("/check/", module.Check)
 	gr.POST("/", module.CreateProblem)
 
 	return module

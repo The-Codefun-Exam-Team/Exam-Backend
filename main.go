@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/create_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
@@ -56,6 +57,9 @@ func main() {
 
 	// Attach the route to /api/submit
 	_ = submit.NewModule(e.Group("/api/submit"), &env)
+
+	// Attach the route to /api/new_problem
+	_ = create.NewModule(e.Group("/api/new_problem"), &env)
 
 	if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {
 		env.Log.Fatalf("Cannot start server: %v", err)
