@@ -33,7 +33,7 @@ func Verify(c echo.Context, env *envlib.Env) (*models.User, error) {
 }
 
 // VerifyRequest construct, add Authorization and process the http request for verification.
-func VerifyRequest(c echo.Context, env *envlib.Env) (*models.Verify, error) {
+func VerifyRequest(c echo.Context, env *envlib.Env) (*models.ReturnVerify, error) {
 	env.Log.Debug("Constructing verify request")
 	request, err := ConstructRequest(http.MethodPost, "https://codefun.vn/api/verify")
 	if err != nil {

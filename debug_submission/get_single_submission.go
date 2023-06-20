@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/update"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/utility"
 	"github.com/labstack/echo/v4"
 )
@@ -33,12 +34,7 @@ func (m *Module) GetSingleSubmission(c echo.Context) (err error) {
 	id := c.Param("id")
 	m.env.Log.Infof("Getting submission (%v)", id)
 
-	// Query the DB
-	m.env.Log.Debug("Querying DB for submission")
-	var sub models.DebugSubmission
-	err = m.env.DB.Get(&sub, getSingleSubmissionQuery, id)
-
-	// Log errors
+	err = update.UpdateResult(m.env, id)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If no row was found
@@ -53,6 +49,20 @@ func (m *Module) GetSingleSubmission(c echo.Context) (err error) {
 				Error: "An error has occured",
 			})
 		}
+	}
+
+	// Query the DB
+	m.env.Log.Debug("Querying DB for submission")
+	var sub models.DebugSubmission
+	err = m.env.DB.Get(&sub, getSingleSubmissionQuery, id)
+
+	// Log errors
+	if err != nil {
+		// At this point, we can be certain the submission does exist
+		m.env.Log.Errorf("Getting submission: Error encountered: %v", err)
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	// Return the submission
