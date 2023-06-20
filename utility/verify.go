@@ -49,7 +49,7 @@ func VerifyRequest(c echo.Context, env *envlib.Env) (*models.Verify, error) {
 		return nil, err
 	}
 
-	var verify models.Verify
+	var verify models.ReturnVerify
 
 	env.Log.Debug("Unmarshalling verify response")
 	err = json.Unmarshal(response, &verify)

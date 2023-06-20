@@ -23,11 +23,11 @@ func (m *Module) Check(c echo.Context) error {
 		return err
 	}
 
-	// if user.Status != "Admin" {
-	// 	return c.JSON(http.StatusForbidden, models.Response{
-	// 		Error: "You are not allowed to perform this operation",
-	// 	}
-	// }
+	if user.Status != "Admin" {
+		return c.JSON(http.StatusForbidden, models.Response{
+			Error: "You are not allowed to perform this operation",
+		})
+	}
 
 	m.env.Log.Debugf("ID = %v", c.FormValue("id"))
 	id, err := strconv.Atoi(c.FormValue("id"))
