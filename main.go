@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/create_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
@@ -50,8 +54,9 @@ func main() {
 	// Create the echo.Echo object
 	e := echo.New()
 
-	// Use middleware
+	// Use middleware and change settings
 	e.Pre(middleware.AddTrailingSlash())
+	e.HideBanner = true
 
 	// Attach the route to /api/problems
 	_ = debugproblem.NewModule(e.Group("/api/problems"), &env)
@@ -65,7 +70,24 @@ func main() {
 	// Attach the route to /api/new_problem
 	_ = create.NewModule(e.Group("/api/new_problem"), &env)
 
-	if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {
-		env.Log.Fatalf("Cannot start server: %v", err)
+	// Start the server in a goroutine
+	go func() {
+		if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {
+			env.Log.Fatalf("Cannot start server: %v", err)
+		}
+	}()
+
+	// Receive os.Interrupt signal (Ctrl+C)
+	interrupt_channel := make(chan os.Signal, 1)
+	signal.Notify(interrupt_channel, os.Interrupt)
+	<- interrupt_channel
+
+	// Graceful shutdown
+	// Timeout of 10 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 10)
+	defer cancel()
+
+	if err = e.Shutdown(ctx); err != nil {
+		env.Log.Fatalf("Error shutting down server: %v", err)
 	}
 }
