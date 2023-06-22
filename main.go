@@ -11,6 +11,7 @@ import (
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -48,6 +49,9 @@ func main() {
 
 	// Create the echo.Echo object
 	e := echo.New()
+
+	// Use middleware
+	e.Pre(middleware.AddTrailingSlash())
 
 	// Attach the route to /api/problems
 	_ = debugproblem.NewModule(e.Group("/api/problems"), &env)
