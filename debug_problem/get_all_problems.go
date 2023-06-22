@@ -1,10 +1,12 @@
 package debugproblem
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/models"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/utility"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 // Parts of the query for retrieving all problems from DB.
@@ -39,6 +41,10 @@ var getAllProblemQueryPart2 = `
 GROUP BY debug_submissions.dpid
 `
 
+var getAllProblemQueryFilterRange = `
+LIMIT ? OFFSET ?
+`
+
 var getAllProblemQueryFilterActive = `
 	AND debug_problems.status = "Active"
 `
@@ -64,11 +70,46 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 		query = getAllProblemQuery
 	}
 
+	// Check if page_id and limit exists
+	pageID_str := c.QueryParam("page_id")
+	limit_str := c.QueryParam("limit")
+
+	var pagination bool
+	var limit, start int
+
+	if pageID_str != "" && limit_str != "" {
+		pagination = true
+		query += getAllProblemQueryFilterRange
+
+		pageID, err := strconv.Atoi(pageID_str)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, models.Response{
+				Error: "Cannot convert parameter to int",
+			})
+		}
+
+		limit, err := strconv.Atoi(limit_str)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, models.Response{
+				Error: "Cannot convert parameter to int",
+			})
+		}
+		
+		start = utility.Pagination(pageID, limit)
+	} else {
+		pagination = false
+	}
+
 	// Query all problems from DB
 	var listOfProblems []models.ShortenedProblem
 
-	m.env.Log.Debug("Querying DB for all problems")
-	err = m.env.DB.Select(&listOfProblems, query, user.ID)
+	if pagination {
+		m.env.Log.Debugf("Querying DB for problems from %v (limit %v)", start, limit)
+		err = m.env.DB.Select(&listOfProblems, query, user.ID, limit, start)
+	} else {
+		m.env.Log.Debug("Querying DB for all problems")
+		err = m.env.DB.Select(&listOfProblems, query, user.ID)
+	}
 
 	if err != nil {
 		m.env.Log.Error("Getting all problems: Error encountered: %v", err)
