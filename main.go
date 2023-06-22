@@ -72,7 +72,7 @@ func main() {
 
 	// Start the server in a goroutine
 	go func() {
-		if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil {
+		if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil && err != http.ErrServerClosed {
 			env.Log.Fatalf("Cannot start server: %v", err)
 		}
 	}()
