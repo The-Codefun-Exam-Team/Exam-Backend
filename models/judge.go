@@ -4,97 +4,127 @@ import (
 	"errors"
 	"strconv"
 	"strings"
-
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
 )
 
+// Test is a struct containing information about a testcase.
+// It includes the verdict (AC, WA, ...), the execution time in seconds and the message for each testcase.
 type Test struct {
 	Verdict     string  `json:"verdict"`
 	RunningTime float64 `json:"runningTime"`
 	Message     string  `json:"message"`
 }
 
+// Judge is a struct containing information about multiple testcases of a submission.
+// It includes the number of total and correct testcases, as well as a slice of all tests.
 type Judge struct {
-	Correct int    `json:"correct"`
-	Total   int    `json:"total"`
-	Tests   []Test `json:"tests"`
+	CorrectTestCount int    `json:"correct"`
+	TotalTestCount   int    `json:"total"`
+	Tests            []Test `json:"tests"`
 }
 
-func ReadJudge(db *db.DB, rid int) (*Judge, error) {
-	var judge_string string
+// Function for scanning Test
+func (t *Test) Scan(src interface{}) (err error) {
+	var source string
 
-	row := db.QueryRow("SELECT error FROM subs_code WHERE rid = ?", rid)
-
-	if err := row.Scan(&judge_string); err != nil {
-		return nil, err
+	// Converting data to string
+	switch src.(type) {
+	case string:
+		source = src.(string)
+	case []byte:
+		source = string(src.([]byte))
+	default:
+		return errors.New("incompatible type for Test")
 	}
 
-	j, err := ConvertToJudge(judge_string)
+	// Split the testcase into 3 parts:
+	// Verdict, RunningTime and Message
+	var temp []string
+
+	temp = strings.Split(source, "|")
+	if len(temp) != 3 {
+		return errors.New("not a valid testcase")
+	}
+
+	var runningtime string
+
+	t.Verdict, runningtime, t.Message = temp[0], temp[1], strings.TrimSpace(temp[2])
+
+	// Convert RunningTime to float64
+	t.RunningTime, err = strconv.ParseFloat(runningtime, 64)
 	if err != nil {
-		// CE
-		return &Judge{
-			Correct: 0,
-			Total:   0,
-			Tests: []Test{
-				{
-					Verdict:     "CE",
-					RunningTime: 0.000,
-					Message:     judge_string,
-				},
+		return
+	}
+
+	return nil
+}
+
+// Function for scanning Judge
+func (j *Judge) Scan(src interface{}) (err error) {
+	var source string
+
+	// Convert data to string
+	switch src.(type) {
+	case string:
+		source = src.(string)
+	case []byte:
+		source = string(src.([]byte))
+	default:
+		return errors.New("incompatible type for Judge")
+	}
+
+	// If the data starts with "Compile Error:", it means the verdict is CE.
+	// Currently, when a submission is CE, this code will treat it as a Judge with 0/0 tests.
+	// Tests will contain a single Test, with the verdict CE and the compiler message.
+	if strings.HasPrefix(source, "Compile Error:") {
+		j.CorrectTestCount = 0
+		j.TotalTestCount = 0
+		j.Tests = []Test{
+			{
+				Verdict:     "CE",
+				RunningTime: 0.000,
+				Message:     strings.TrimSpace(source),
 			},
-		}, nil
+		}
+
+		return nil
 	}
 
-	return j, nil
-}
+	// Split the judge string into the score (correct/total) and all of the testcases
+	var temp []string
 
-func ConvertToJudge(raw string) (*Judge, error) {
-	var tests []Test
-
-	score_and_verdict := strings.Split(raw, "////")
-	if len(score_and_verdict) != 2 {
-		return nil, errors.New(`cannot split score and verdict`)
+	temp = strings.Split(source, "////")
+	if len(temp) != 2 {
+		return errors.New("cannot split score and verdict")
 	}
-	score, verdict := score_and_verdict[0], score_and_verdict[1]
 
-	correct_and_total := strings.Split(score, "/")
-	if len(correct_and_total) != 2 {
-		return nil, errors.New(`cannot split to correct and total`)
+	score, verdict := temp[0], temp[1]
+
+	// Split the score into correct count and total count
+	temp = strings.Split(score, "/")
+	if len(temp) != 2 {
+		return errors.New("cannot split correct and total test count")
 	}
-	strcorrect, strtotal := correct_and_total[0], correct_and_total[1]
 
-	correct, err := strconv.Atoi(strcorrect)
+	correct, total := temp[0], temp[1]
+
+	j.CorrectTestCount, err = strconv.Atoi(correct)
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	total, err := strconv.Atoi(strtotal)
+	j.TotalTestCount, err = strconv.Atoi(total)
 	if err != nil {
-		return nil, err
+		return
 	}
 
+	// Split all of the testcases, and use the Scan method of Test to process each one
 	raw_tests := strings.Split(verdict, "||")
-	for _, test := range raw_tests {
-		result_time_error := strings.Split(test, "|")
-		if len(result_time_error) != 3 {
-			return nil, errors.New("not a valid testcase")
-		}
-		result, strtime, e := result_time_error[0], result_time_error[1], result_time_error[2]
-		time, err := strconv.ParseFloat(strtime, 64)
-		if err != nil {
-			return nil, err
-		}
 
-		tests = append(tests, Test{
-			Verdict:     result,
-			RunningTime: time,
-			Message:     e,
-		})
+	for _, test := range raw_tests {
+		var t Test
+		t.Scan(test)
+		j.Tests = append(j.Tests, t)
 	}
 
-	return &Judge{
-		Correct: correct,
-		Total:   total,
-		Tests:   tests,
-	}, nil
+	return nil
 }

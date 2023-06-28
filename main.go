@@ -1,53 +1,93 @@
 package main
 
 import (
-	"log"
+	"context"
+	"fmt"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/create_problem"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
+
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/db"
-	debugproblem "github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
-	debugsubmission "github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/general"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/rankings"
-	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
 )
 
 func main() {
+	var err error
+
+	// Creating the env
+	env := envlib.Env{}
+
+	// Load config
+	env.Config, err = envlib.LoadConfig()
+
+	if err != nil {
+		panic(fmt.Sprintf("[cannot load config] %v", err))
+	}
+
+	// Initialize logger
+	env.Log, err = envlib.InitializeLogger(env.Config.LoggingMode)
+
+	if err != nil {
+		panic(fmt.Sprintf("[cannot initialize logger] %v", err))
+	}
+
+	// Connect to database
+	db_dsn := envlib.GetDSN(env.Config)
+	env.DB, err = envlib.NewDB(db_dsn)
+
+	if err != nil {
+		panic(fmt.Sprintf("[cannot connect to database] %v", err))
+	}
+
+	// Create HTTP client
+	env.Client = http.DefaultClient
+
+	env.Log.Info("Environment created")
+
+	// Create the echo.Echo object
 	e := echo.New()
 
-	// e.Pre(middleware.HTTPSRedirect())
+	// Use middleware and change settings
 	e.Pre(middleware.AddTrailingSlash())
+	e.HideBanner = true
 
-	db, err := db.New(nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Attach the route to /api/problems
+	_ = debugproblem.NewModule(e.Group("/api/problems"), &env)
 
-	db.Ping()
+	// Attach the route to /api/submissions
+	_ = debugsubmission.NewModule(e.Group("/api/submissions"), &env)
 
-	e.GET("/api/ping/", general.Ping)
-	e.GET("/api/debug_submission/:id/", general.TempSubmission)
+	// Attach the route to /api/submit
+	_ = submit.NewModule(e.Group("/api/submit"), &env)
 
-	if _, err := debugproblem.New(db, e.Group("/api/problems")); err != nil {
-		log.Fatal(err)
-	}
+	// Attach the route to /api/new_problem
+	_ = create.NewModule(e.Group("/api/new_problem"), &env)
 
-	if _, err := submit.New(db, e.Group("/api/submit")); err != nil {
-		log.Fatal(err)
-	}
+	// Start the server in a goroutine
+	go func() {
+		if err = e.Start(fmt.Sprintf(":%v", env.Config.ServerPort)); err != nil && err != http.ErrServerClosed {
+			env.Log.Fatalf("Cannot start server: %v", err)
+		}
+	}()
 
-	if _, err := debugsubmission.New(db, e.Group("/api/submission")); err != nil {
-		log.Fatal(err)
-	}
+	// Receive os.Interrupt signal (Ctrl+C)
+	interrupt_channel := make(chan os.Signal, 1)
+	signal.Notify(interrupt_channel, os.Interrupt)
+	<- interrupt_channel
 
-	if _, err := rankings.New(db, e.Group("/api/rankings")); err != nil {
-		log.Fatal(err)
-	}
+	// Graceful shutdown
+	// Timeout of 10 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 10)
+	defer cancel()
 
-
-	if err := e.Start(":80"); err != nil {
-		log.Fatal(err)
+	if err = e.Shutdown(ctx); err != nil {
+		env.Log.Fatalf("Error shutting down server: %v", err)
 	}
 }
