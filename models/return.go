@@ -11,3 +11,4 @@ type ReturnSubmission struct {
 	Submission CodefunSubmission `json:"data"`
 	Error      string            `json:"error"`
 }
+
