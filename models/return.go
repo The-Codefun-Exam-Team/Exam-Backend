@@ -9,6 +9,5 @@ type ReturnVerify struct {
 // ReturnSubmission contains the format of the "/submissions/{id}" API from Codefun.
 type ReturnSubmission struct {
 	Submission CodefunSubmission `json:"data"`
-	Error string `json:"error"`
+	Error      string            `json:"error"`
 }
-

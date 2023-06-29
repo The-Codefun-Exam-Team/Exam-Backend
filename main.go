@@ -80,11 +80,11 @@ func main() {
 	// Receive os.Interrupt signal (Ctrl+C)
 	interrupt_channel := make(chan os.Signal, 1)
 	signal.Notify(interrupt_channel, os.Interrupt)
-	<- interrupt_channel
+	<-interrupt_channel
 
 	// Graceful shutdown
 	// Timeout of 10 seconds
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second * 10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	if err = e.Shutdown(ctx); err != nil {

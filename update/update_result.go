@@ -133,9 +133,9 @@ func UpdateResult(env *envlib.Env, id string) error {
 	// Update result and score based on drid
 
 	var new_result string
-	epsilon := 1E-6
+	epsilon := 1e-6
 
-	if evaluation + epsilon >= 100 {
+	if evaluation+epsilon >= 100 {
 		new_result = "AC"
 	} else {
 		new_result = "SS"
