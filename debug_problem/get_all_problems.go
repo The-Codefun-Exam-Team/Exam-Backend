@@ -88,7 +88,7 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 			})
 		}
 
-		limit, err := strconv.Atoi(limit_str)
+		limit, err = strconv.Atoi(limit_str)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, models.Response{
 				Error: "Cannot convert parameter to int",
@@ -101,11 +101,11 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	}
 
 	// Query all problems from DB
-	var listOfProblems []models.ShortenedProblem
+	listOfProblems := []models.ShortenedProblem{}
 
 	if pagination {
 		m.env.Log.Debugf("Querying DB for problems from %v (limit %v)", start, limit)
-		err = m.env.DB.Select(&listOfProblems, query, user.ID, limit, start)
+		err = m.env.DB.Select(&listOfProblems, query, user.ID, limit, start - 1)
 	} else {
 		m.env.Log.Debug("Querying DB for all problems")
 		err = m.env.DB.Select(&listOfProblems, query, user.ID)
