@@ -22,6 +22,8 @@ func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("env")
 
+	viper.AutomaticEnv()
+
 	// Read config file and check for errors
 	err := viper.ReadInConfig()
 	if err != nil {
