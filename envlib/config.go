@@ -22,6 +22,11 @@ func LoadConfig() (*Config, error) {
 	viper.SetConfigName("config")
 	viper.SetConfigType("env")
 
+	// Set default values
+	viper.SetDefault("LOGGING_MODE", "PRODUCTION")
+	viper.SetDefault("SERVER_PORT", "80")
+
+	// Read environment variables
 	viper.AutomaticEnv()
 
 	// Read config file and check for errors
