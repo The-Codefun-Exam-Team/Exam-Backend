@@ -23,13 +23,14 @@ WHERE drid = ?
 var getDPQuery = `
 SELECT
 
-subs_code.score,
+runs.score,
 subs_code.code AS codetext,
 debug_problems.mindiff
 
 FROM debug_submissions
 INNER JOIN debug_problems ON debug_submissions.dpid = debug_problems.dpid
 INNER JOIN subs_code ON debug_problems.rid = subs_code.rid
+INNER JOIN runs ON debug_problems.rid = runs.rid
 
 WHERE debug_submissions.drid = ?
 `
