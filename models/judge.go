@@ -72,10 +72,10 @@ func (j *Judge) Scan(src interface{}) (err error) {
 		return errors.New("incompatible type for Judge")
 	}
 
-	// If the data starts with "Compile Error:", it means the verdict is CE.
+	// If the data starts with a path (with the character '/'), it means the verdict is CE.
 	// Currently, when a submission is CE, this code will treat it as a Judge with 0/0 tests.
 	// Tests will contain a single Test, with the verdict CE and the compiler message.
-	if strings.HasPrefix(source, "Compile Error:") {
+	if strings.HasPrefix(source, "/") {
 		j.CorrectTestCount = 0
 		j.TotalTestCount = 0
 		j.Tests = []Test{
