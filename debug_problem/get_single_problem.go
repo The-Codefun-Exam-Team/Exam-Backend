@@ -60,10 +60,14 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 
 	// Convert the score from NULL to 0
 	m.env.Log.Debug("Converting score")
-	if !p.RawBestScore.Valid {
-		p.BestScore = 0.0
+	if user == nil {
+		p.BestScore = -1.0
 	} else {
-		p.BestScore = p.RawBestScore.Float64
+		if !p.RawBestScore.Valid {
+			p.BestScore = 0.0
+		} else {
+			p.BestScore = p.RawBestScore.Float64
+		}
 	}
 
 	// Log errors

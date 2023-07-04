@@ -130,8 +130,14 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	// Convert each scores from NULL to 0
 	m.env.Log.Debug("Converting score")
 	for idx, p := range listOfProblems {
-		if p.RawBestScore.Valid {
-			listOfProblems[idx].BestScore = p.RawBestScore.Float64
+		if user == nil {
+			listOfProblems[idx].BestScore = -1.0
+		} else {
+			if !p.RawBestScore.Valid {
+				listOfProblems[idx].BestScore = 0.0
+			} else {
+				listOfProblems[idx].BestScore = p.RawBestScore.Float64
+			}
 		}
 	}
 

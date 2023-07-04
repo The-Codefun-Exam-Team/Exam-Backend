@@ -30,7 +30,7 @@ type ShortenedProblem struct {
 	MinimumDifference int `json:"-" db:"mindiff"`
 	// BestScore is the best score of a user for the problem.
 	// NULL score from RawBestScore is treated as 0.
-	BestScore float64 `json:"best_score,omitempty"`
+	BestScore float64 `json:"best_score"`
 	// RawBestScore is the score retrieved from the DB.
 	RawBestScore sql.NullFloat64 `json:"-" db:"best_score"`
 }
