@@ -45,10 +45,18 @@ func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 	code := c.Param("code")
 	m.env.Log.Infof("Getting problem (%v)", code)
 
+	var userID int
+
+	if user == nil {
+		userID = 0
+	} else {
+		userID = user.ID
+	}
+
 	// Query the DB
 	m.env.Log.Debug("Querying DB for problem")
 	var p models.DebugProblem
-	err = m.env.DB.Get(&p, getSingleProblemQuery, user.ID, code)
+	err = m.env.DB.Get(&p, getSingleProblemQuery, userID, code)
 
 	// Convert the score from NULL to 0
 	m.env.Log.Debug("Converting score")
