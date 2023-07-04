@@ -19,8 +19,10 @@ type CheckResult struct {
 func (m *Module) Check(c echo.Context) error {
 	// Verify the user first
 	user, err := utility.Verify(c, m.env)
-	if user == nil {
-		return err
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	if user.Status != "Admin" {

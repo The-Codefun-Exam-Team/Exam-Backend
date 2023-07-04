@@ -35,8 +35,10 @@ WHERE debug_problems.code = ?
 func (m *Module) GetSingleProblem(c echo.Context) (err error) {
 	// Verify the user first
 	user, err := utility.Verify(c, m.env)
-	if user == nil {
-		return err
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	// Getting the problem code

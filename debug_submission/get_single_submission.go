@@ -26,8 +26,16 @@ WHERE debug_submissions.drid = ?
 func (m *Module) GetSingleSubmission(c echo.Context) (err error) {
 	// Verify the user first
 	user, err := utility.Verify(c, m.env)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
+	}
+
 	if user == nil {
-		return err
+		return c.JSON(http.StatusForbidden, models.Response{
+			Error: "Invalid token",
+		})
 	}
 
 	// Getting the submission ID
