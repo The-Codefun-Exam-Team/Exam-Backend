@@ -15,8 +15,10 @@ var submitURL = "https://codefun.vn/api/submit"
 
 func (m *Module) SubmitCode(c echo.Context) (err error) {
 	user, err := utility.Verify(c, m.env)
-	if user == nil {
-		return err
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	// Get the short name (code) of the problem

@@ -56,13 +56,15 @@ var getAllProblemQueryAdmin = getAllProblemQueryPart1 + getAllProblemQueryPart2
 func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	// Verify the user first
 	user, err := utility.Verify(c, m.env)
-	if user == nil {
-		return err
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, models.Response{
+			Error: "An error has occured",
+		})
 	}
 
 	// Get the status of the user
 	var query string
-	if user.Status == "Admin" {
+	if user != nil && user.Status == "Admin" {
 		m.env.Log.Info("Getting all problems (Admin)")
 		query = getAllProblemQueryAdmin
 	} else {
@@ -103,12 +105,19 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	// Query all problems from DB
 	listOfProblems := []models.ShortenedProblem{}
 
+	var userID int
+	if user == nil {
+		userID = 0
+	} else {
+		userID = user.ID
+	}
+
 	if pagination {
 		m.env.Log.Debugf("Querying DB for problems from %v (limit %v)", start, limit)
-		err = m.env.DB.Select(&listOfProblems, query, user.ID, limit, start - 1)
+		err = m.env.DB.Select(&listOfProblems, query, userID, limit, start - 1)
 	} else {
 		m.env.Log.Debug("Querying DB for all problems")
-		err = m.env.DB.Select(&listOfProblems, query, user.ID)
+		err = m.env.DB.Select(&listOfProblems, query, userID)
 	}
 
 	if err != nil {
@@ -121,9 +130,7 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	// Convert each scores from NULL to 0
 	m.env.Log.Debug("Converting score")
 	for idx, p := range listOfProblems {
-		if !p.RawBestScore.Valid {
-			listOfProblems[idx].BestScore = 0.0
-		} else {
+		if p.RawBestScore.Valid {
 			listOfProblems[idx].BestScore = p.RawBestScore.Float64
 		}
 	}
