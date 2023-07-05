@@ -25,6 +25,12 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 		})
 	}
 
+	if user == nil {
+		return c.JSON(http.StatusForbidden, models.Response{
+			Error: "Invalid token",
+		})
+	}
+
 	if user.Status != "Admin" {
 		return c.JSON(http.StatusForbidden, models.Response{
 			Error: "You are not allowed to perform this operation",
