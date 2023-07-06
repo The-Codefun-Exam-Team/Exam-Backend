@@ -37,6 +37,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 		})
 	}
 
+	m.env.Log.Infof("(form) id is %v", c.FormValue("id"))
 	id, err := strconv.Atoi(c.FormValue("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, models.Response{
@@ -88,6 +89,10 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 	// TODO: Check for FAILED
 
 	// TODO: Actually adding the problem
+
+	// Get run data
+	// Create problem
+	// Write to DB
 
 	m.env.Log.Infof("Created problem %v", dpcode)
 	return c.JSON(http.StatusAccepted, models.Response{
