@@ -37,7 +37,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 		})
 	}
 
-	m.env.Log.Infof("(form) id is %v", c.FormValue("id"))
+	m.env.Log.Debugf("ID from request is %v", c.FormValue("id"))
 	id, err := strconv.Atoi(c.FormValue("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, models.Response{
