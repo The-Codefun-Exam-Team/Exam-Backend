@@ -96,7 +96,7 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 				Error: "Cannot convert parameter to int",
 			})
 		}
-		
+
 		start = utility.Pagination(pageID, limit)
 	} else {
 		pagination = false
@@ -114,7 +114,7 @@ func (m *Module) GetAllProblem(c echo.Context) (err error) {
 
 	if pagination {
 		m.env.Log.Debugf("Querying DB for problems from %v (limit %v)", start, limit)
-		err = m.env.DB.Select(&listOfProblems, query, userID, limit, start - 1)
+		err = m.env.DB.Select(&listOfProblems, query, userID, limit, start-1)
 	} else {
 		m.env.Log.Debug("Querying DB for all problems")
 		err = m.env.DB.Select(&listOfProblems, query, userID)

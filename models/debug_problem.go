@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"github.com/jmoiron/sqlx"
 )
 
 // ShortenedProblem contains brief information about a Debug problem.
@@ -33,6 +34,10 @@ type ShortenedProblem struct {
 	BestScore float64 `json:"best_score"`
 	// RawBestScore is the score retrieved from the DB.
 	RawBestScore sql.NullFloat64 `json:"-" db:"best_score"`
+	// Pid is the ID of CodefunProblem associated with this
+	Pid int `json:"-" db:"_pid"`
+	// Score is the score of the submission associated with this
+	Score float64 `json:"-" db:"_score"`
 }
 
 // DebugProblem contains all information about a Debug problem.
@@ -45,4 +50,23 @@ type DebugProblem struct {
 	Judge Judge `json:"judge" db:"error"`
 	// CodefunProblem is the associated problem for the given submission.
 	CodefunProblem CodefunProblem `json:"problem" db:""`
+}
+
+func (dprob *DebugProblem) Write(db *sqlx.DB) (int, error) {
+	result, err := db.NamedExec(`
+		INSERT INTO debug_problems
+		(code, name, solved, total, rid, pid, language, score, result, mindiff)
+		VALUES (:dpcode, :dpname, :solved, :total, :rid, :_pid, :language, :_score, :result, :mindiff)
+	`, dprob)
+
+	if err != nil {
+		return -1, err
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+
+	return int(id), nil
 }

@@ -163,7 +163,7 @@ func UpdateResult(env *envlib.Env, id string) error {
 		return err
 	}
 
-	if submission.Score + epsilon >= 100 {
+	if submission.Score+epsilon >= 100 {
 		env.Log.Infof("Updating mindiff for debug problem %v to %v", dpid, diff)
 		// Update mindiff
 		_, err = env.DB.Exec(updateMindiffExec, diff, dpid)

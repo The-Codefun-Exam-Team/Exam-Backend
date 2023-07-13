@@ -24,7 +24,7 @@ func (m *Module) Check(c echo.Context) error {
 			Error: "An error has occured",
 		})
 	}
-	
+
 	if user == nil {
 		return c.JSON(http.StatusForbidden, models.Response{
 			Error: "Invalid token",

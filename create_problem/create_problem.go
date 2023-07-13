@@ -10,10 +10,25 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+var getDataQuery = `
+SELECT
+
+runs.result,
+runs.score,
+runs.language
+problems.pid
+
+FROM runs
+
+INNER JOIN problems ON problems.pid = runs.pid
+
+WHERE runs.rid = ?
+`
+
 type CreateResult struct {
-	Status string `json:"status"`
+	Status  string `json:"status"`
 	Message string `json:"message"`
-	DPCode string `json:"code,omitempty"`
+	DPCode  string `json:"code,omitempty"`
 }
 
 func (m *Module) CreateProblem(c echo.Context) (err error) {
@@ -47,7 +62,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 	m.env.Log.Infof("Creating problem for submission %v", id)
 
 	m.env.Log.Debugf("Checking for duplication")
-	
+
 	duplicated_code, err := checkDuplicated(m.env.DB, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, models.Response{
@@ -59,7 +74,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 		m.env.Log.Infof("Problem already existed for ID %v (%v)", id, duplicated_code)
 		return c.JSON(http.StatusAccepted, models.Response{
 			Data: CreateResult{
-				Status: "DUPLICATED",
+				Status:  "DUPLICATED",
 				Message: fmt.Sprintf("Problem already existed (%v)", duplicated_code),
 			},
 		})
@@ -91,15 +106,54 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 	// TODO: Actually adding the problem
 
 	// Get run data
+
+	m.env.Log.Debug("Get data of submission")
+
+	var pid int
+	var score float64
+	var language, result string
+
+	row := m.env.DB.QueryRowx(getDataQuery, id)
+	err = row.Scan(&result, &score, &language, &pid)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Error: "An error has occured",
+		})
+	}
+
 	// Create problem
+
+	new_problem := models.DebugProblem{
+		ShortenedProblem: models.ShortenedProblem{
+			Code:              dpcode,
+			Name:              name,
+			SolvedCount:       0,
+			TotalCount:        0,
+			Rid:               id,
+			Pid:               pid,
+			Language:          language,
+			Score:             score,
+			Result:            result,
+			MinimumDifference: 100000,
+		},
+	}
+
 	// Write to DB
+	m.env.Log.Infof("Writing to database")
+
+	_, err = new_problem.Write(m.env.DB)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, models.Response{
+			Error: "An error has occured",
+		})
+	}
 
 	m.env.Log.Infof("Created problem %v", dpcode)
 	return c.JSON(http.StatusAccepted, models.Response{
 		Data: CreateResult{
-			Status: "OK",
+			Status:  "OK",
 			Message: "Problem added successfully",
-			DPCode: dpcode,
+			DPCode:  dpcode,
 		},
 	})
 }
