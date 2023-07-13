@@ -13,16 +13,14 @@ import (
 var getDataQuery = `
 SELECT
 
-runs.result,
-runs.score,
-runs.language
-problems.pid
+result,
+score,
+language
+pid
 
 FROM runs
 
-INNER JOIN problems ON problems.pid = runs.pid
-
-WHERE runs.rid = ?
+WHERE rid = ?
 `
 
 type CreateResult struct {
@@ -116,6 +114,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 	row := m.env.DB.QueryRowx(getDataQuery, id)
 	err = row.Scan(&result, &score, &language, &pid)
 	if err != nil {
+		m.env.Log.Infof("Error: %v", err)
 		return c.JSON(http.StatusBadRequest, models.Response{
 			Error: "An error has occured",
 		})
@@ -143,6 +142,7 @@ func (m *Module) CreateProblem(c echo.Context) (err error) {
 
 	_, err = new_problem.Write(m.env.DB)
 	if err != nil {
+		m.env.Log.Infof("Error: %v", err)
 		return c.JSON(http.StatusBadRequest, models.Response{
 			Error: "An error has occured",
 		})
