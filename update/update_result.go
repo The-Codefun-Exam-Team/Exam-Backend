@@ -25,7 +25,8 @@ SELECT
 
 runs.score,
 subs_code.code AS codetext,
-debug_problems.mindiff
+debug_problems.mindiff,
+debug_problems.dpid
 
 FROM debug_submissions
 INNER JOIN debug_problems ON debug_submissions.dpid = debug_problems.dpid
@@ -48,6 +49,20 @@ score = ?
 WHERE
 
 drid = ?
+`
+
+var updateMindiffExec = `
+UPDATE
+
+debug_problems
+
+SET
+
+mindiff = ?
+
+WHERE
+
+dpid = ?
 `
 
 // UpdateResult update a submission based on its ID
@@ -94,7 +109,7 @@ func UpdateResult(env *envlib.Env, id string) error {
 	}
 
 	if ret.Error != "" {
-		if ret.Error == fmt.Sprintf("Submission %d not found") {
+		if ret.Error == fmt.Sprintf("Submission %d not found", rid) {
 			env.Log.Info("Submission not found")
 			return nil
 		}
@@ -117,11 +132,11 @@ func UpdateResult(env *envlib.Env, id string) error {
 
 	var original_score float64
 	var codetext string
-	var mindiff int
+	var mindiff, dpid int
 
 	env.Log.Debug("Querying DB for information")
 	row = env.DB.QueryRowx(getDPQuery, id)
-	err = row.Scan(&original_score, &codetext, &mindiff)
+	err = row.Scan(&original_score, &codetext, &mindiff, &dpid)
 	if err != nil {
 		return err
 	}
@@ -146,6 +161,15 @@ func UpdateResult(env *envlib.Env, id string) error {
 	_, err = env.DB.Exec(updateSubmissionExec, new_result, evaluation, id)
 	if err != nil {
 		return err
+	}
+
+	if submission.Score + epsilon >= 100 {
+		env.Log.Infof("Updating mindiff for debug problem %v to %v", dpid, diff)
+		// Update mindiff
+		_, err = env.DB.Exec(updateMindiffExec, diff, dpid)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
