@@ -30,15 +30,10 @@ debug_problems.code AS dpcode,
 debug_problems.name AS dpname,
 debug_problems.language,
 debug_problems.result,
-MAX(score_table.max_score) AS best_score
+score_table.max_score AS best_score
 
 FROM debug_problems
-LEFT OUTER JOIN debug_submissions ON debug_submissions.dpid = debug_problems.dpid
 LEFT OUTER JOIN score_table ON score_table.dpid = debug_problems.dpid
-`
-
-var getAllProblemQueryPart2 = `
-GROUP BY debug_submissions.dpid
 `
 
 var getAllProblemQueryFilterRange = `
@@ -46,12 +41,12 @@ LIMIT ? OFFSET ?
 `
 
 var getAllProblemQueryFilterActive = `
-	AND debug_problems.status = "Active"
+WHERE debug_problems.status = "Active"
 `
 
 // Separate queries for admins and non-admins
-var getAllProblemQuery = getAllProblemQueryPart1 + getAllProblemQueryFilterActive + getAllProblemQueryPart2
-var getAllProblemQueryAdmin = getAllProblemQueryPart1 + getAllProblemQueryPart2
+var getAllProblemQuery = getAllProblemQueryPart1 + getAllProblemQueryFilterActive
+var getAllProblemQueryAdmin = getAllProblemQueryPart1
 
 func (m *Module) GetAllProblem(c echo.Context) (err error) {
 	// Verify the user first
