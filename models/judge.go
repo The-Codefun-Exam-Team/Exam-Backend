@@ -65,7 +65,7 @@ func (j *Judge) CompileError(message string) (err error) {
 		{
 			Verdict: "CE",
 			RunningTime: 0.000,
-			Message: strings.TrimSpace(message)
+			Message: strings.TrimSpace(message),
 		},
 	}
 
