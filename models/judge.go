@@ -58,6 +58,20 @@ func (t *Test) Scan(src interface{}) (err error) {
 	return nil
 }
 
+func (j *Judge) CompileError(message string) (err error) {
+	j.CorrectTestCount = 0
+	j.TotalTestCount = 0
+	j.Tests = []Test{
+		{
+			Verdict: "CE",
+			RunningTime: 0.000,
+			Message: strings.TrimSpace(message)
+		},
+	}
+
+	return nil
+}
+
 // Function for scanning Judge
 func (j *Judge) Scan(src interface{}) (err error) {
 	var source string
@@ -76,17 +90,7 @@ func (j *Judge) Scan(src interface{}) (err error) {
 	// Currently, when a submission is CE, this code will treat it as a Judge with 0/0 tests.
 	// Tests will contain a single Test, with the verdict CE and the compiler message.
 	if strings.HasPrefix(source, "/") {
-		j.CorrectTestCount = 0
-		j.TotalTestCount = 0
-		j.Tests = []Test{
-			{
-				Verdict:     "CE",
-				RunningTime: 0.000,
-				Message:     strings.TrimSpace(source),
-			},
-		}
-
-		return nil
+		return j.CompileError(source)
 	}
 
 	// Split the judge string into the score (correct/total) and all of the testcases
@@ -94,7 +98,7 @@ func (j *Judge) Scan(src interface{}) (err error) {
 
 	temp = strings.Split(source, "////")
 	if len(temp) != 2 {
-		return errors.New("cannot split score and verdict")
+		return j.CompileError(source)
 	}
 
 	score, verdict := temp[0], temp[1]
@@ -102,19 +106,19 @@ func (j *Judge) Scan(src interface{}) (err error) {
 	// Split the score into correct count and total count
 	temp = strings.Split(score, "/")
 	if len(temp) != 2 {
-		return errors.New("cannot split correct and total test count")
+		return j.CompileError(source)
 	}
 
 	correct, total := temp[0], temp[1]
 
 	j.CorrectTestCount, err = strconv.Atoi(correct)
 	if err != nil {
-		return
+		return j.CompileError(source)
 	}
 
 	j.TotalTestCount, err = strconv.Atoi(total)
 	if err != nil {
-		return
+		return j.CompileError(source)
 	}
 
 	// Split all of the testcases, and use the Scan method of Test to process each one
