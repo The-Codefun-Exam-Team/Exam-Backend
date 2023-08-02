@@ -65,6 +65,14 @@ WHERE
 dpid = ?
 `
 
+func min(a, b int) int {
+	if a < b {
+		return a
+	} else {
+		return b
+	}
+}
+
 // UpdateResult update a submission based on its ID
 func UpdateResult(env *envlib.Env, id string) error {
 	// Fetch the status of that problem from the DB
@@ -164,9 +172,10 @@ func UpdateResult(env *envlib.Env, id string) error {
 	}
 
 	if submission.Score+epsilon >= 100 {
-		env.Log.Infof("Updating mindiff for debug problem %v to %v", dpid, diff)
+		new_mindiff := min(diff, mindiff)
+		env.Log.Infof("Updating mindiff for debug problem %v to %v", dpid, new_mindiff)
 		// Update mindiff
-		_, err = env.DB.Exec(updateMindiffExec, diff, dpid)
+		_, err = env.DB.Exec(updateMindiffExec, new_mindiff, dpid)
 		if err != nil {
 			return err
 		}
