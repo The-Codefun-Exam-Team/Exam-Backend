@@ -26,7 +26,8 @@ SELECT
 runs.score,
 subs_code.code AS codetext,
 debug_problems.mindiff,
-debug_problems.dpid
+debug_problems.dpid,
+debug_submissions.code
 
 FROM debug_submissions
 INNER JOIN debug_problems ON debug_submissions.dpid = debug_problems.dpid
@@ -122,7 +123,7 @@ func UpdateResult(env *envlib.Env, id string) error {
 			return nil
 		}
 		env.Log.Warnf("Error while fetching submission %v", id)
-		return errors.New("Cannot fetch submission")
+		return errors.New("cannot fetch submission")
 	}
 
 	submission := ret.Submission
@@ -139,18 +140,18 @@ func UpdateResult(env *envlib.Env, id string) error {
 	// Update the submission
 
 	var original_score float64
-	var codetext string
+	var codetext_problem, codetext_solution string
 	var mindiff, dpid int
 
 	env.Log.Debug("Querying DB for information")
 	row = env.DB.QueryRowx(getDPQuery, id)
-	err = row.Scan(&original_score, &codetext, &mindiff, &dpid)
+	err = row.Scan(&original_score, &codetext_problem, &mindiff, &dpid, &codetext_solution)
 	if err != nil {
 		return err
 	}
 
 	env.Log.Debug("Evaluating submission")
-	diff := utility.EditDistance(submission.Code, codetext)
+	diff := utility.EditDistance(codetext_problem, codetext_solution)
 	evaluation := utility.CalculateScore(diff, mindiff, submission.Score, original_score)
 
 	// Write submission to DB
