@@ -45,7 +45,8 @@ debug_submissions
 SET
 
 result = ?,
-score = ?
+score = ?,
+diff = ?
 
 WHERE
 
@@ -167,7 +168,7 @@ func UpdateResult(env *envlib.Env, id string) error {
 	}
 
 	env.Log.Info("Writing submision %v to DB", id)
-	_, err = env.DB.Exec(updateSubmissionExec, new_result, evaluation, id)
+	_, err = env.DB.Exec(updateSubmissionExec, new_result, evaluation, diff, id)
 	if err != nil {
 		return err
 	}
