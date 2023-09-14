@@ -11,6 +11,7 @@ import (
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/create_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_problem"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/debug_submission"
+	"github.com/The-Codefun-Exam-Team/Exam-Backend/users"
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/submit"
 
 	"github.com/The-Codefun-Exam-Team/Exam-Backend/envlib"
@@ -69,6 +70,9 @@ func main() {
 
 	// Attach the route to /api/new_problem
 	_ = create.NewModule(e.Group("/api/new_problem"), &env)
+	
+	// Attach the route to /api/users
+	_ = debuguser.NewModule(e.Group("/api/users"), &env)
 
 	// Start the server in a goroutine
 	go func() {
